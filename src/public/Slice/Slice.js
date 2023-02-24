@@ -50,11 +50,8 @@ export default class Slice{
 
 }
 
-
-
-
 async function load(){
-    window.slice= new Slice(); 
+    window.slice = new Slice();
     let x = await import("./js/Controller.js");
     window.slice.controller = new x.default();
 };

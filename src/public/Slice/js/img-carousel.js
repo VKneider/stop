@@ -23,6 +23,7 @@ export default class ImgCarousel extends HTMLElement {
       
 
       if(this.props != undefined){
+        if(this.props.id!=undefined){this.id=this.props.id;}
         this.images=this.props.images;
         this.maxImage = this.images.length - 1;
         this.create()

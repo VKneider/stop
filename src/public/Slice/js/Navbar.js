@@ -10,13 +10,16 @@ export default class NavBar extends HTMLElement {
 
 
             if(this.props!=undefined){
+                if(this.props.style!=undefined){
+                    this.setCss();
+                }
                 let logo = this.shadowRoot.querySelector("#logo");
                 logo.innerHTML = this.props.logo;
 
                 let titleContainer = this.shadowRoot.getElementById("title-container");
                 for(let i=0; i<this.props.sections.length; i++){
                     let prop = this.props.sections;
-                    titleContainer.innerHTML+=(`<li class="nav-menu-item "> <a href="#${prop[i].id}" id="script" class="averus nav-menu-link"> ${prop[i].text} </a></li>`)
+                    titleContainer.innerHTML+=(`<li class="nav-menu-item "> <a href="${prop[i].id}" id="script" class="averus nav-menu-link"> ${prop[i].text} </a></li>`)
                 }
             }
 
@@ -40,6 +43,17 @@ export default class NavBar extends HTMLElement {
     }
 
     connectedCallback() { }
+
+    setCss(){
+        let style = document.createElement("style");
+        let keys = Object.keys(this.props.style);
+        style.innerHTML+=`.header{`
+        for(let i=0; i<keys.length; i++){
+            style.innerHTML+=`${keys[i]}:${this.props.style[keys[i]]};\n`
+        }
+        style.innerHTML+=`}`
+        this.shadowRoot.appendChild(style);
+    }
 
 }
 window.customElements.define('nav-bar', NavBar);

@@ -4,13 +4,16 @@ export default class Fetch {
             this.url = baseUrl;
         }
         this.methods = ["GET", "POST", "PUT", "DELETE"];
-        this.timeout = timeout;
+        
+        if(timeout != undefined){
+            this.timeout = timeout;
+        } else {this.timeout=5000}
     }
 
     async request(method, data, endpoint) {
 
         if (!this.methods.includes(method)) throw new Error("Invalid method");
-        if(data && typeof data !== "object") throw new Error("Invalid data");
+        if(data && typeof data !== "object") throw new Error("Invalid data, not json");
         const controller = new AbortController()
 
         
@@ -20,19 +23,26 @@ export default class Fetch {
                 "Content-Type": "application/json"
             },
             signal: controller.signal,
+          
             
         }
+
         if(data!=null){
             options.body = JSON.stringify(data);
         }
+        
         let loading = await slice.getInstance("Loading");
         loading.start();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout || 10000)
-        let response = await fetch(this.url + endpoint, options);
-            loading.stop();
-            let result = await response.json();
 
-        return result;
+        if(this.baseUrl != undefined){
+        let response = await fetch(this.url + endpoint, options);
+        }else{
+        let response = await fetch(endpoint, options);
+        }
+        loading.stop();
+
+        return response;
     }
         
 }
