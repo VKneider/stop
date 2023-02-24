@@ -22,9 +22,11 @@ const server = app.listen(app.get("port"), "", (req,res) => {
 
 
 app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/public/index.html")
+    res.sendFile(path.join(__dirname, "public", "landingPage", "index.html"))
 });
 
-
+app.get("/login", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "LoginRegister", "index.html"))
+});
 
 export default server;
