@@ -1,0 +1,106 @@
+#home{
+
+    height: 600px;
+    background-image: url(./img/hexagon_background.jpg);
+    
+}
+@import url('https://fonts.googleapis.com/css2?family=Koulen&family=Lilita+One&display=swap');
+
+#main-carousel{
+    margin: auto;
+    justify-self: center;
+    justify-content: center;
+    align-items: center;
+}
+
+#howtoplay{
+    
+    height: 600px;
+    background-size: auto;
+    background-image: url(./img/background_pencil.jpg)
+}
+
+.grid-home{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+body{
+    margin: 0;
+    padding: 0;
+}
+
+
+.main-text{
+    width: 400px;
+    font-family: 'Lilita One', cursive;
+    text-align: center;
+    font-size: 40px;
+    font-weight: 600;
+    margin-top: 120px;
+    margin-left: 150px;
+    color: #2F2F2F;
+}
+
+#icon_table{
+    width: 100px;
+    height: 100px;
+    margin-top: 100px;
+    margin-left: 150px;
+
+}
+
+.blue{
+color:#2B3467
+}
+
+.red{
+color:#EB455F;
+}
+
+.bigger{
+font-size: 60px;
+}
+
+.card-container{
+    
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1200px;
+    padding: 20px;
+    padding-bottom: 40px;
+    margin: auto;
+    text-align: center;
+    justify-self: center;
+    justify-content: center
+}
+#btn-container {
+    text-align: center;
+    justify-items: center;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+@media only screen and (max-width: 600px) {
+    .card-container, .grid-home {
+        grid-template-columns: 1fr;
+    }
+  }
+
+
+#btn-container {
+    display: grid;
+    place-items: center;
+}
+
+.blocked{
+    pointer-events: none;
+    background-color: #1d2630;
+    opacity: 0.5;
+    z-index: 5;
+  }
+
+  :root {
+    --bg-color: #2B3467;
+    --text-color: #fff;
+    --main-color: #EB455F;
+}
