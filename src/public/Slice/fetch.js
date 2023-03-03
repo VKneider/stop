@@ -35,14 +35,17 @@ export default class Fetch {
         loading.start();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout || 10000)
 
+        let response;
         if(this.baseUrl != undefined){
-        let response = await fetch(this.url + endpoint, options);
+         response = await fetch(this.url + endpoint, options);
         }else{
-        let response = await fetch(endpoint, options);
+          response = await fetch(endpoint, options);
         }
+        
+        let output = await response.json();
         loading.stop();
 
-        return response;
+        return output;
     }
         
 }
