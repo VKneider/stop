@@ -29,6 +29,9 @@ body{
     padding: 0;
 }
 
+:root {
+    --script: slice.controller.getInstance("main-carousel").changeStyles({aspect-ratio: 9/16});
+}
 
 .main-text{
     width: 400px;
@@ -73,16 +76,36 @@ font-size: 60px;
     justify-self: center;
     justify-content: center
 }
-#btn-container {
-    text-align: center;
-    justify-items: center;
-    justify-content: center;
-    margin-top: 50px;
-}
+
 
 @media only screen and (max-width: 600px) {
     .card-container, .grid-home {
         grid-template-columns: 1fr;
+    }
+ 
+    .grid-home{
+        grid-gap: 20px;
+    }
+
+    .bigger { 
+        font-size: 35px;
+    }
+
+
+    .main-text{
+
+        width: 300px;
+        font-size: 30px;
+        margin: auto;
+        margin-top: 20px;
+    }
+
+    .card-container{
+        padding: 0px;
+    }
+
+    #howtoplay{
+        height: 1500px;
     }
   }
 
