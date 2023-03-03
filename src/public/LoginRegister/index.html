@@ -7,7 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="../LoginRegister/style.css">
-    <script defer src="../LoginRegister/index.js"></script>
+    <script defer src="../LoginRegister/index.js" type="module"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" rel="stylesheet"  type='text/css'>
+
     
 </head>
 
@@ -18,17 +20,17 @@
             <form action="#">
                 <h1>Create Account</h1>
                 
-                <input type="text" placeholder="Name" />
-                <input type="email" placeholder="Email" />
-                <input type="password" placeholder="Password" />
+                <input type="text" placeholder="Username"  id="usernameRegister"/>
+                <input type="email" placeholder="Email" id="emailRegister" />
+                <input type="password" placeholder="Password" id="passwordRegister" />
                 <button id="submitsignUp">Sign Up</button>
             </form>
         </div>
         <div class="form-container sign-in-container">
             <form action="#">
                 <h1>Sign in</h1>
-                <input type="email" placeholder="Email" />
-                <input type="password" placeholder="Password" />
+                <input type="email" placeholder="Email"  id="emailLogin" />
+                <input type="password" placeholder="Password" id="passwordLogin" />
                 <a href="#">Forgot your password?</a>
                 <button id="submitsignIn">Sign In</button>
             </form>

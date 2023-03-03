@@ -262,3 +262,12 @@ footer a {
     color: #3c97bf;
     text-decoration: none;
 }
+
+:root {
+	--dark: #34495E;
+	--light: #ffffff;
+	--success: #0ABF30;
+	--error: #E24D4C;
+	--warning: #E9BD0C;
+	--info: #3498DB;
+  }
