@@ -27,6 +27,7 @@
   background: #ffffff;
   justify-content: space-between;
   animation: show_toast 0.3s ease forwards;
+  z-index: 1000;
 }
 @keyframes show_toast {
   0% {
