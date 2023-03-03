@@ -20,14 +20,16 @@ export default class ImgCarousel extends HTMLElement {
       const prevBtn = this.shadowRoot.getElementById('prev')
       nextBtn.addEventListener("click", (e) => this.moveNext());
       prevBtn.addEventListener("click", (e) => this.movePrev());
-      
+      const slider = this.shadowRoot.getElementById('slider')
+
+    
 
       if(this.props != undefined){
         if(this.props.id!=undefined){this.id=this.props.id;}
         this.images=this.props.images;
         this.maxImage = this.images.length - 1;
         this.create()
-        if(this.props.ratio != undefined){ this.changeStyles({aspectRatio: this.props.ratio});}
+        if(this.props.ratio != undefined){ this.changeStyles({"aspect-ratio": this.props.ratio});}
         if(this.props.jumpInterval != undefined){ this.jumpInterval = this.props.jumpInterval * 1000;}
         if(this.props.height != undefined){ this.changeStyles({height: this.props.height});}
         if(this.props.motion != undefined){ if(this.props.motion=="fw"){this.autoMoveNext();}else{this.autoMovePrev();}
