@@ -3,7 +3,8 @@ import express from "express";
 const profileRouter = express.Router();
 
 profileRouter.get("/", (req, res) => {
-    res.send("Profile");
+
+    res.sendFile(path.join(__dirname, "public", "homePage", "index.html"))
 
 });
 
