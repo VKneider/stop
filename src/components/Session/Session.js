@@ -1,30 +1,35 @@
 import { encryptPassword, comparePassword } from "./utils.js";
 import db from "../Database/Database.js";
+import session from "express-session";
 
 class Session {
     constructor() {}
 
 
     async login(req, res) {
-        let { password, user } = req.body;
+        let { password, email } = req.body;
 
-        let userData = await db.loadDBSentences(db.sentences.getUserData, [user]);
-
-        if (userData.rows.length == 1) {
-            if (comparePassword(user, password)) {
-                this.createSession(req, res, user, profile);
+        let userData = await db.loadDBSentences(db.sentences.getUserData, [email]);
+        if (userData.rows.length != 0) {
+            if (await comparePassword(email, password)) {
+                req = this.createSession(req, res, email, userData.rows[0].id_profile);
+                res.status(200).send({ message: "User logged in", status:200 });
             }
         } else {
-            res.send({ error: "User or Password are not correct" });
+            res.status(200).send({ message: "Password and email dont match", status:403 });
         }
+        
+
+        console.log(await comparePassword(email, password))
+
     }
 
     async register(req, res) {
         
         let { password, email } = req.body;
         let userExists = await db.loadDBSentences(db.sentences.getUserData, [email]);
-        if (userExists.rows.length == 1) {
-            res.status(200).send({ message: "User already registered", status:400 });
+        if (userExists.rows.length != 0) {
+            res.status(200).send({ message: "User already registered", status:409 });
         } else {
             let encryptedPassword = await encryptPassword(password);
             await db.loadDBSentences(db.sentences.insertUser, [email, encryptedPassword,2]);
@@ -54,6 +59,20 @@ class Session {
         req.session.destroy();
         res.status(200).send({ message: "Session destroyed" });
     }
+
+    sessionConfig() {
+        return session({
+            secret: "secret",
+            resave:false,
+            saveUninitialized: false,
+            cookie: {
+                maxAge: 1000*60*60*24,
+                httpOnly:true,
+                secure: false
+            }
+        })}
+
+
 }
 
 let sess = new Session();

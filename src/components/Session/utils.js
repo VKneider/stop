@@ -10,8 +10,9 @@ async function encryptPassword(password){
 
 async function comparePassword(email,password){
     
-    let hash = db.loadDBSentences(db.sentences.getHashPassword, [email]);
-    return await bcrypt.compare(password, hash); //devuelve true o false
+    let hash = await db.loadDBSentences(db.sentences.getHashPassword, [email]);    
+    let myHash = hash.rows[0].password;
+    return await bcrypt.compare(password, myHash); //devuelve true o false
 }
 
 export {encryptPassword, comparePassword};
