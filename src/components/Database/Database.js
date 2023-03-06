@@ -1,7 +1,7 @@
 import pkg from "pg";
 const { Pool } = pkg;
 
-import sentences from "./DBSentences.json" assert { type: "json" };
+import sentences from "./DBSentences.js";
 import dotenv from "dotenv";
 dotenv.config({ path: "./env/local.env" });
 
