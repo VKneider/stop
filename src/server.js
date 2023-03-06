@@ -6,8 +6,17 @@ import path from "path";
 import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: "./env/local.env" });
+
+//Components
 import sess from "./components/Session/Session.js";
-import session from "express-session";
+
+//Schemas and Middlewares
+import { userLoginSchema, userRegisterSchema } from "./Validations/userValidation.js";
+import validationYup from "./Middlewares/validationMiddleware.js";
+
+//Routers
+import profileRouter from "./Routes/profileRouter.js";
+import homeRouter from "./Routes/homeRouter.js";
 
 const app = express();
 const bodyParser = express.json();
@@ -15,25 +24,12 @@ app.set("port", process.env.PORT || 3000);
 app.use(cors());
 app.use(bodyParser);
 app.use(express.static(path.join(__dirname, "public")));
-
-app.use(session({
-    secret: "secret",
-    resave:false,
-    saveUninitialized: false,
-    cookie: {
-        maxAge: 1000*60*60*24,
-        httpOnly:true,
-        secure: false
-    }
-}));
-
-
-import profileRouter from "./Routes/profileRouter.js";
+app.use(sess.sessionConfig());
 
 
 
-
-
+//app.use("/profile", profileRouter);
+app.use("/home", homeRouter)
 
 
 
@@ -42,18 +38,30 @@ const server = app.listen(app.get("port"), "", (req,res) => {
 });
 
 
+
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "landingPage", "index.html"))
 });
+
+/*
+app.get("/home", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "homePage", "index.html"))
+});
+*/
 
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "LoginRegister", "index.html"))
 });
 
-app.post("/login", sess.login);
 
-app.post("/register", (req,res) => sess.register(req,res));
+app.post("/login", validationYup(userLoginSchema),  (req,res) => {
+    sess.login(req,res)
+});
 
-app.use("/profile", profileRouter);
+app.post("/register", validationYup(userRegisterSchema),  (req,res) => {
+    sess.register(req,res)
+});
+
+
 
 export default server;
