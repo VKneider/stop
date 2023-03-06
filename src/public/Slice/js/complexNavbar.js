@@ -16,16 +16,23 @@ export default class complexNavbar extends HTMLElement {
 
             if (this.props != undefined) {
                 
+
                 if(this.props.id != undefined){
                     this.id=this.props.id;
                 }
 
+                let logoLink = this.shadowRoot.getElementById("logoLink");
+                if(this.props.logoLink != undefined){
+                    logoLink.href = this.props.logoLink;
+                } 
+
                 let sign  = this.shadowRoot.querySelector("#sign-in");
-                sign.href = this.props.sign;
-/*
-                let register = this.shadowRoot.querySelector("#register");
-                register.href = this.props.register;
-*/
+                if(this.props.sign!=undefined){
+                    sign.href = this.props.sign;
+                } else{
+                    sign.style.display="none";
+                }
+                
 
                 let logo = this.shadowRoot.querySelector("#logo");
                 logo.innerHTML = this.props.logo;
