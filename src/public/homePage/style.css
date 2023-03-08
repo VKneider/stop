@@ -2,4 +2,16 @@
     --bg-color: #2B3467;
     --text-color: #fff;
     --main-color: #EB455F;
+    
+}
+
+#playgame{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    
+}
+
+body{
+	background-image: url(../homePage/img/hexagon_background.jpg);	
+    opacity: 2;
 }
