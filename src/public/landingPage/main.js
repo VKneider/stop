@@ -1,6 +1,4 @@
 io();
-import Fetch from "../Slice/fetch.js";
-
 
 let init = async () => {
     let NB = await slice.getInstance("complexNavbar", {
@@ -27,16 +25,11 @@ let init = async () => {
     let carousel = await slice.getInstance("img-carousel", {id:"main-carousel", jumpInterval:2 ,motion:"fw", images:[`${path}1.jpg`, `${path}2.jpg`, `${path}3.jpeg`,`${path}4.jpg` ]});
 
 
-    let playBtn = await slice.getInstance("Button", { value: "Play Now", style: { width: "50%", margin: "50px", background: "#2B3467" } });
-    let createRoomBtn = await slice.getInstance("Button", { value: "Create Room", style: { width: "50%", margin: "50px", background: "#BAD7E9", color: "black" } });
-    let joinRoomBtn = await slice.getInstance("Button", { value: "Join Room", style: { width: "50%", margin: "50px", background: "#EB455F" } });
-    console.log(playBtn);
+    
 
     let btnContainer = document.getElementById("btn-container");
     btnContainer.appendChild(carousel);
-   // btnContainer.appendChild(playBtn);
-   // btnContainer.appendChild(createRoomBtn);
-   // btnContainer.appendChild(joinRoomBtn);
+
 
     let cardContainer = document.createElement("div");
     cardContainer.classList.add("card-container");
