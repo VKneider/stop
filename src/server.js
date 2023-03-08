@@ -53,10 +53,19 @@ app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "LoginRegister", "index.html"))
 });
 
+app.get("/validate",  (req, res) => {
+    sess.validateAccount(req,res)
+});
+
 
 app.post("/login", validationYup(userLoginSchema),  (req,res) => {
     sess.login(req,res)
 });
+
+app.post("/logout",  (req,res) => {
+    sess.logout(req,res)
+});
+
 
 app.post("/register", validationYup(userRegisterSchema),  (req,res) => {
     sess.register(req,res)
