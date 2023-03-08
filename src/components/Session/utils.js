@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt"
-import db from "../Database/Database.js";
+import CryptoJS from "crypto-js";
 
 async function encryptPassword(password){
 
@@ -8,11 +8,23 @@ async function encryptPassword(password){
     return hash;
 }
 
-async function comparePassword(email,password){
-    
-    let hash = await db.loadDBSentences(db.sentences.getHashPassword, [email]);    
-    let myHash = hash.rows[0].password;
-    return await bcrypt.compare(password, myHash); //devuelve true o false
+async function comparePassword(password, hash){
+ 
+    let result = await bcrypt.compare(password, hash);
+    return result //devuelve true o false
 }
 
-export {encryptPassword, comparePassword};
+
+function encryptJSON(data){
+    let encryptedData = CryptoJS.AES.encrypt(JSON.stringify(data), process.env.ENCRYPT_KEY || "mySecret").toString();
+    return encryptedData;
+}
+
+function decryptJSON(data){
+    let bytes = CryptoJS.AES.decrypt(data, process.env.ENCRYPT_KEY || "mySecret").toString(CryptoJS.enc.Utf8);
+    let decryptedData = JSON.parse(bytes);
+    return decryptedData
+}
+
+export {encryptPassword, comparePassword, encryptJSON, decryptJSON};
+
