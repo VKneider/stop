@@ -48,6 +48,10 @@ export default class Slice{
             
         }
 
+        appendStyles(styles){
+            this.styles.innerHTML += styles;
+        }
+
 }
 
 async function load(){
