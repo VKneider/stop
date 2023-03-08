@@ -40,7 +40,7 @@ export default class complexNavbar extends HTMLElement {
                 let titleContainer = this.shadowRoot.querySelector(".navbar");
                 for (let i = 0; i < this.props.sections.length; i++) {
                     let prop = this.props.sections[i];
-                    titleContainer.innerHTML += (`<li><a href="${prop.id}">${prop.text}</a></li>`)
+                    titleContainer.innerHTML += (`<li><a id=${prop.id}  href="${prop.link}">${prop.text}</a></li>`)
                 }
             }
             slice.controller.toRegister(this);
@@ -49,7 +49,9 @@ export default class complexNavbar extends HTMLElement {
     }
 
 
-    connectedCallback() { }
+    getElement(id){
+        return this.shadowRoot.getElementById(id);
+    }
 
 
 
