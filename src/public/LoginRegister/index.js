@@ -2,8 +2,7 @@ const signUpButton = document.getElementById('signUp');
 const signInButton = document.getElementById('signIn');
 const container = document.getElementById('container');
 
-import Fetch from "../Slice/fetch.js";
-const fetchModule = new Fetch("http://localhost:3002", 10000);
+import mainFetch from "../Slice/fetch.js";
 
 signUpButton.addEventListener('click', () => {
 	container.classList.add("right-panel-active");
@@ -48,13 +47,9 @@ registerForm.addEventListener('submit', async (e) => {
 		
 		
 		
-		let codeValidator = await slice.getInstance("CodeValidator");
-		codeValidator.show();
-		
-		
 
 		
-		let call = await fetchModule.request("POST", data, "/register");
+		let call = await mainFetch.request("POST", data, "/register");
 		
 		console.log(call)
 		
@@ -62,7 +57,7 @@ registerForm.addEventListener('submit', async (e) => {
 			
 			container.classList.remove("right-panel-active");
 			emptyRegisterFields();
-			const alertSuccess = await slice.getInstance("ToastAlert", {color:"green", text:"You have successfully registered", icon:"success"});
+			const alertSuccess = await slice.getInstance("ToastAlert", {color:"green", text:"Check your email for account validation.", icon:"success"});
 			alertSuccess.show();
 
 		}else if(call.status==409){
@@ -103,13 +98,13 @@ loginForm.addEventListener('submit', async (e) => {
 		
 
 		
-		let call = await fetchModule.request("POST", data, "/login");
+		let call = await mainFetch.request("POST", data, "/login");
 		
 		console.log(call)
 		
 		if(call.status==200){
 			
-			window.location.href = "/lobby";
+			window.location.href = "/home";
 
 		}else if(call.status==403){
 			const alertMissmatch = await slice.getInstance("ToastAlert", {color:"red", text:"Email and password dont match", icon:"error"});
