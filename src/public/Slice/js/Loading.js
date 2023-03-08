@@ -6,6 +6,12 @@ export default class Loading extends HTMLElement {
             this.shadow = this.attachShadow({ mode: "open" });
             this.shadowRoot.appendChild(template.content.cloneNode(true));
             slice.controller.toRegister(this);
+            slice.appendStyles(`.blocked{
+                pointer-events: none;
+                background-color: #1d2630;
+                opacity: 0.5;
+                z-index: 5;
+              }`)
         })
     }
 
