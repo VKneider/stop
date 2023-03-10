@@ -8,6 +8,11 @@ export default class Button extends HTMLElement {
             let btn = this.shadowRoot.getElementById("btn");
             
             if(this.props!=undefined){
+
+                if(this.props.id!=undefined){
+                    this.id=this.props.id;
+                }
+                
                 if(this.props.style!=undefined){
                     this.setCss();
                 } 
