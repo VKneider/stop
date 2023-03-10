@@ -16,17 +16,19 @@ let init = async () => {
     let btnContainer = document.getElementById("btnContainer");
 
     
-    let playBtn = await slice.getInstance("Button", { value: "Play Now", style: { width: "50%", margin: "50px", background: "#2B3467" } });
-    let createRoomBtn = await slice.getInstance("Button", { value: "Create Room", style: { width: "50%", margin: "50px", background: "#BAD7E9", color: "black" } });
+    let playBtn = await slice.getInstance("Button", { value: "Create Room", style: { width: "50%", margin: "50px", background: "#2B3467"} });
     let joinRoomBtn = await slice.getInstance("Button", { value: "Join Room", style: { width: "50%", margin: "50px", background: "#EB455F" } });
     
     btnContainer.appendChild(playBtn);
-    btnContainer.appendChild(createRoomBtn);
     btnContainer.appendChild(joinRoomBtn);
 
-    let waitingModal = await slice.getInstance("WaitingModal");
-
-    joinRoomBtn.addEventListener("click", () => {
+    
+    let waitingModal = await slice.getInstance("WaitingModal", { id: "waitingModal" });
+    
+    joinRoomBtn.addEventListener("click", async () => {
+        
+        await waitingModal.init();
+        //waitingModal.getElement("myBtn2").addEventListener("click", async () => {waitingModal.changeHTML()});
         document.body.appendChild(waitingModal);
     });
 
