@@ -3,6 +3,24 @@ import db from "../Database/Database.js";
 import session from "express-session";
 import mailer from "../Nodemailer/Nodemailer.js";
 
+/**
+ * @class Session
+ * @description Class that handles the session of the user
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ * @param {Object} next - Next object
+ * @param {Object} db - Database object
+ * @param {Object} session - Session object
+ * @param {Object} mailer - Mailer object
+ * @param {Object} encryptPassword - Encrypt password function
+ * @param {Object} comparePassword - Compare password function
+ * @param {Object} encryptJSON - Encrypt JSON function
+ * @param {Object} decryptJSON - Decrypt JSON function
+ * @param {Object} sess - Session object, singleton
+ */
+
+
+
 class Session {
     constructor() {}
 
@@ -79,6 +97,13 @@ class Session {
         } else {
             res.redirect("http://localhost:3003")
         }
+    }
+
+    isLogged(req, res, next) {
+        if (req.session.logged == true) {
+            return true;
+        } 
+        return false;
     }
 
     destroySession(req) {
