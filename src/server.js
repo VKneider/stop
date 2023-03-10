@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import {dirname} from "path";
+import { dirname } from "path";
 import path from "path";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: "./env/local.env" });
 
@@ -26,21 +26,15 @@ app.use(bodyParser);
 app.use(express.static(path.join(__dirname, "public")));
 app.use(sess.sessionConfig());
 
-
-
 //app.use("/profile", profileRouter);
-app.use("/home", homeRouter)
+app.use("/home", homeRouter);
 
-
-
-const server = app.listen(app.get("port"), "", (req,res) => {
+const server = app.listen(app.get("port"), "", (req, res) => {
     console.log("Server is running on port: " + app.get("port"));
 });
 
-
-
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "landingPage", "index.html"))
+    res.sendFile(path.join(__dirname, "public", "landingPage", "index.html"));
 });
 
 /*
@@ -49,28 +43,30 @@ app.get("/home", (req, res) => {
 });
 */
 
-app.get("/login", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "LoginRegister", "index.html"))
+app.get("/login",(req, res) => {
+
+        if(sess.isLogged(req, res)==true){
+            res.redirect("/home");
+        }else{
+            res.sendFile(path.join(__dirname, "public", "loginRegister", "index.html"));
+        }
+    }
+);
+
+app.get("/validate", (req, res) => {
+    sess.validateAccount(req, res);
 });
 
-app.get("/validate",  (req, res) => {
-    sess.validateAccount(req,res)
+app.post("/login", validationYup(userLoginSchema), (req, res) => {
+    sess.login(req, res);
 });
 
-
-app.post("/login", validationYup(userLoginSchema),  (req,res) => {
-    sess.login(req,res)
+app.post("/logout", (req, res) => {
+    sess.logout(req, res);
 });
 
-app.post("/logout",  (req,res) => {
-    sess.logout(req,res)
+app.post("/register", validationYup(userRegisterSchema), (req, res) => {
+    sess.register(req, res);
 });
-
-
-app.post("/register", validationYup(userRegisterSchema),  (req,res) => {
-    sess.register(req,res)
-});
-
-
 
 export default server;
