@@ -1,6 +1,8 @@
 import { createTransport } from "nodemailer";
 import getValidationTemplate from "./validateTemplate.js";
 
+
+
 class Nodemailer{
     constructor(service, port, user, pass){
 
