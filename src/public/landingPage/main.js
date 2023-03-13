@@ -1,4 +1,4 @@
-io();
+
 
 let init = async () => {
     let NB = await slice.getInstance("complexNavbar", {
