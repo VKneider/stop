@@ -1,19 +1,10 @@
 const signUpButton = document.getElementById('signUp');
 const signInButton = document.getElementById('signIn');
-const container = document.getElementById('container');
 
 import mainFetch from "../Slice/fetch.js";
 
-signUpButton.addEventListener('click', () => {
-	container.classList.add("right-panel-active");
-});
 
-signInButton.addEventListener('click', () => {
-	container.classList.remove("right-panel-active");
-});
 
-const submitsignUp = document.getElementById('submitsignUp');
-const submitsignIn = document.getElementById('submitsignIn');
 
 const emailRegister=document.getElementById('emailRegister')
 const passwordRegister=document.getElementById('passwordRegister')
@@ -45,10 +36,7 @@ registerForm.addEventListener('submit', async (e) => {
 			username: usernameRegister.value
 		};
 		
-		
-		
-
-		
+	
 		let call = await mainFetch.request("POST", data, "/register");
 		
 		console.log(call)

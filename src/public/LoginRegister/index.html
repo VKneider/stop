@@ -15,41 +15,28 @@
 
 <body>
 <div class="background">
-    <div class="container" id="container">
-        <div class="form-container sign-up-container">
-            <form id='registerForm'>
-                <h1>Create Account</h1>
-                
-                <input type="text" placeholder="Username"  id="usernameRegister" minlength="4" maxlength="12"/>
-                <input type="email" placeholder="Email" id="emailRegister" minlength="4"/>
-                <input type="password" placeholder="Password" id="passwordRegister" minlength="8" maxlength="30" />
-                <button id="submitsignUp">Sign Up</button>
-            </form>
-        </div>
-        <div class="form-container sign-in-container">
-            <form id="loginForm">
-                <h1>Sign in</h1>
-                <input type="email" placeholder="Email"  id="emailLogin" />
-                <input type="password" placeholder="Password" id="passwordLogin" minlength="8" maxlength="30" />
-                <a href="#">Forgot your password?</a>
-                <button id="submitsignIn">Sign In</button>
-            </form>
-        </div>
-        <div class="overlay-container">
-            <div class="overlay">
-                <div class="overlay-panel overlay-left">
-                    <h1>Welcome Back!</h1>
-                    <p>To keep connected with us please login with your personal info</p>
-                    <button class="ghost" id="signIn">Sign In</button>
-                </div>
-                <div class="overlay-panel overlay-right">
-                    <h1>Hello, Friend!</h1>
-                    <p>Enter your personal details and start journey with us</p>
-                    <button class="ghost changer" id="signUp">Sign Up</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="main">  	
+		<input type="checkbox" id="chk" aria-hidden="true">
+
+			<div  class="signup">
+				<form id="registerForm" >
+					<label for="chk" aria-hidden="true">Sign up</label>
+					<input id="usernameRegister" type="text" name="txt" placeholder="User name" required="">
+					<input id="emailRegister" type="email" name="email" placeholder="Email" required="">
+					<input id="passwordRegister" type="password" name="pswd" placeholder="Password" required="">
+					<button>Sign up</button>
+				</form>
+			</div>
+
+			<div  class="login">
+				<form id="loginForm">
+					<label for="chk" aria-hidden="true">Login</label>
+					<input id="emailLogin" type="email" name="email" placeholder="Email" required="">
+					<input id="passwordLogin" type="password" name="pswd" placeholder="Password" required="">
+					<button>Login</button>
+				</form>
+			</div>
+	</div>
 </div>
     
 <script src="../Slice/Slice.js" type="module"></script>
