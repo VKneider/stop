@@ -13,7 +13,7 @@ export default class ImgCarousel extends HTMLElement {
 
     slice.controller.loadTemplate("./Slice/templates/img-carousel.html").then(template=>{ 
       
-      console.log(template)
+     
       this.shadow = this.attachShadow({ mode: "open" });
       this.shadowRoot.appendChild(template.content.cloneNode(true));
       const nextBtn = this.shadowRoot.getElementById('next')
