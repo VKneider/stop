@@ -23,12 +23,17 @@ let init = async () => {
     btnContainer.appendChild(joinRoomBtn);
 
     
-    let waitingModal = await slice.getInstance("WaitingModal", { id: "waitingModal" });
-    
+    let waitingModal = await slice.getInstance("WaitingModal", { id: "waitingModal", socket:io() });
+    let createRoomModal = await slice.getInstance("CreateRoomModal", { id: "createRoomModal", socket:io() });
+
+    playBtn.addEventListener("click", async () => {
+        await createRoomModal.init();
+        document.body.appendChild(createRoomModal);
+    });
+
     joinRoomBtn.addEventListener("click", async () => {
         
         await waitingModal.init();
-        //waitingModal.getElement("myBtn2").addEventListener("click", async () => {waitingModal.changeHTML()});
         document.body.appendChild(waitingModal);
     });
 
