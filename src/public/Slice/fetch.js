@@ -31,7 +31,11 @@
             options.body = JSON.stringify(data);
         }
         
-        let loading = await slice.getInstance("Loading");
+        if(slice.controller.components.has("myLoading")){
+            slice.controller.components.delete("myLoading")
+        }
+        
+        let loading = await slice.getInstance("Loading", {id:"myLoading"});
         loading.start();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout || 10000)
 
