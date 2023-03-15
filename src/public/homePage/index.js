@@ -1,5 +1,6 @@
 import mainFetch from "../Slice/fetch.js";
 
+let mySocket = io();
 
 let init = async () => {
     
@@ -22,15 +23,15 @@ let init = async () => {
     btnContainer.appendChild(playBtn);
     btnContainer.appendChild(joinRoomBtn);
 
+ 
+    let createRoomModal = await slice.getInstance("CreateRoomModal", { id: "createRoomModal", socket:mySocket });
+    let waitingModal = await slice.getInstance("WaitingModal", { id: "waitingModal", socket:mySocket });
     
-    let waitingModal = await slice.getInstance("WaitingModal", { id: "waitingModal", socket:io() });
-    let createRoomModal = await slice.getInstance("CreateRoomModal", { id: "createRoomModal", socket:io() });
-
     playBtn.addEventListener("click", async () => {
         await createRoomModal.init();
         document.body.appendChild(createRoomModal);
     });
-
+    
     joinRoomBtn.addEventListener("click", async () => {
         
         await waitingModal.init();
