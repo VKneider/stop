@@ -5,6 +5,14 @@ export default class Loading extends HTMLElement {
         slice.controller.loadTemplate("./Slice/templates/Loading.html").then(template => {
             this.shadow = this.attachShadow({ mode: "open" });
             this.shadowRoot.appendChild(template.content.cloneNode(true));
+
+            if(this.props!=undefined){
+                if(this.props.id!=undefined){
+                    this.id=this.props.id;
+                }
+            }
+            
+
             slice.controller.toRegister(this);
             slice.appendStyles(`.blocked{
                 pointer-events: none;
