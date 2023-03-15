@@ -43,7 +43,6 @@ registerForm.addEventListener('submit', async (e) => {
 		
 		if(call.status==200){
 			
-			container.classList.remove("right-panel-active");
 			emptyRegisterFields();
 			const alertSuccess = await slice.getInstance("ToastAlert", {color:"green", text:"Check your email for account validation.", icon:"success"});
 			alertSuccess.show();
