@@ -3,6 +3,7 @@ import mainFetch from "../fetch.js";
 export default class CreateRoomModal extends HTMLElement {
     constructor() {
       super();
+      this.active=false;
       //var slice = document.getElementById('slice'); Esta linea no hace falta
       slice.controller.loadTemplate("./Slice/templates/CreateRoomModal.html").then(template => {
           this.attachShadow({ mode: 'open' });
@@ -33,21 +34,16 @@ export default class CreateRoomModal extends HTMLElement {
     }
 
     async changeHTML(){
-      
+      this.active=true;
       this.maximumPlayers=Number(this.shadowRoot.getElementById("playersInput").value);
-      
+      console.log(this.maximumPlayers)
       let call = await mainFetch.request("POST", {max:this.maximumPlayers}, "/createRoom");
       this.room = call.room;
-      this.socket.emit('joinRoom', this.room);
+      this.socket.emit('joinRoom', {user:call.user, room:this.room});
       slice.controller.components.delete("myBtn2")
       slice.controller.components.delete("playersInput")
 
-      this.socket.on('update:waitingPlayers', (data) => {
-        this.players=data.players;
-        this.maximumPlayers=data.max;
-        this.shadowRoot.getElementById("players").innerHTML=`${this.players}/${this.maximumPlayers}`;
-      })
-
+      
       this.shadowRoot.getElementById("center").innerHTML=`
       <div id="main-text">  Waiting for other players to Join </div>
       <div class="spacing">a</div>
@@ -55,12 +51,21 @@ export default class CreateRoomModal extends HTMLElement {
       <div id="players">1/${this.maximumPlayers}</div>
       <button id="closeBtn">X</button>  
       `;
-
+      
+      this.socket.on('update:waitingPlayers', (data) => {
+        if(this.active!=false){
+          this.players=data.players;
+          this.shadowRoot.getElementById("players").innerHTML=`${data.players}/${this.maximumPlayers}`;
+        }
+      })
+      
       this.shadowRoot.getElementById("closeBtn").addEventListener("click", () => {
+        this.active=false;
         slice.controller.components.delete("myBtn2")
         this.socket.emit('waiting:deleteRoom', this.room)
         slice.controller.components.delete("playersInput")
         this.remove();
+        console.log(slice.controller.components)
     });
 
     }
