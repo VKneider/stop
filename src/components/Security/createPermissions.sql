@@ -56,3 +56,35 @@ CREATE TABLE object_permissions(
 );
 
 INSERT INTO profile (id_profile, description_project) VALUES (1, 'User'), (2, 'Admin');
+
+--Jueguito
+
+CREATE TABLE categories(
+    id_category SERIAL NOT NULL CHECK (id_category > 0),
+    description_category VARCHAR(30) NOT NULL CHECK (description_category != ''),
+    PRIMARY KEY (id_category)
+);
+
+INSERT INTO categories (description_category) VALUES ('Nombre'), ('Apellido'), ('Cosa'), ('Color'), ('Lugar'), ('Animal'), ('Comida'), ('Profesion'), ('Deporte') ;
+
+
+CREATE TABLE games(
+    id_game SERIAL NOT NULL CHECK (id_game > 0),
+    PRIMARY KEY (id_game)
+);
+
+CREATE TABLE games_categories(
+    id_game INTEGER NOT NULL CHECK (id_game > 0),
+    id_category INTEGER NOT NULL CHECK (id_category > 0),
+    FOREIGN KEY (id_game) REFERENCES games (id_game),
+    FOREIGN KEY (id_category) REFERENCES categories (id_category),
+    PRIMARY KEY (id_game, id_category)
+);
+
+CREATE TABLE games_users(
+    id_game INTEGER NOT NULL CHECK (id_game > 0),
+    id_user INTEGER NOT NULL CHECK (id_user > 0),
+    FOREIGN KEY (id_game) REFERENCES games (id_game),
+    FOREIGN KEY (id_user) REFERENCES users (id_user),
+    PRIMARY KEY (id_game, id_user)
+);
