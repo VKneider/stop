@@ -84,7 +84,6 @@ function getDisconnectData(socketID, socketClients){
     
 
     let user = socketClients.get(idx);
-    console.log(user)
     return {room: user.room, id: user.socket.id, max: user.max, role:user.role, user:idx}
 
     
@@ -101,5 +100,14 @@ function getSocketsFromRoom(room, socketClients){
     return sockets;
 }
 
+function getRoomUsers(room, socketClients){
+    let users = 0;
+    for(let [key, value] of socketClients){
+        if(value.room == room){
+            users+=1;
+        }
+    }
+    return users;
+}
 
-export {room, genRoomID, verifyRoom, verifyRoomFull, getRoomMax, removeUserRoom, deleteRoom, getDisconnectData, getSocketsFromRoom}
+export {room, genRoomID, verifyRoom, verifyRoomFull, getRoomMax, removeUserRoom, deleteRoom, getDisconnectData, getSocketsFromRoom, getRoomUsers}
