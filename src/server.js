@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: "./env/local.env" });
 import { Server as socketIO } from "socket.io";
-import { room, genRoomID, verifyRoom, verifyRoomFull, getRoomMax, removeUserRoom, deleteRoom, getDisconnectData, getSocketsFromRoom} from "./utils/utils.js";
+import { room, genRoomID, verifyRoom, verifyRoomFull, getRoomMax, removeUserRoom, deleteRoom, getDisconnectData, getSocketsFromRoom, getRoomUsers} from "./utils/utils.js";
 
 //Components
 import sess from "./components/Session/Session.js";
@@ -93,11 +93,10 @@ app.post("/joinRoom", sess.sessionMiddleware, (req, res) => {
     
     let roomMax = getRoomMax(req.body.room, socketClients);
     let myRoom = req.body.room;
-    console.log(myRoom, "myRoom")
+    
 
     socketClients.set(req.session.user, { room: req.body.room, status: "waiting", max:roomMax, role:"player" });
     res.status(200).send({ room: req.body.room, user:req.session.user, status:200, max:roomMax });
-    console.log(socketClients)
 
 })
 
@@ -110,22 +109,23 @@ io.on("connection", socket => {
 
         let data = getDisconnectData(socket.id, socketClients);
         if(data!=null){
-            console.log(data.room, "hola")
+            
                 if(data.role=="host"){
                     deleteRoom(data.room, socketClients)
                     socket.broadcast.to(data.room).emit("update:closedRoom");
                 }else{
                     if(io.sockets.adapter.rooms.get(data.room).size!=undefined){
-                        io.in(data.room).emit("update:waitingPlayers", {players:io.sockets.adapter.rooms.get(data.room).size, max:getRoomMax(data.room, socketClients)} );
+                        let players = getRoomUsers(data.room, socketClients)-1;
+                        socket.broadcast.to(data.room).emit("update:waitingPlayers", {players:players, max:getRoomMax(data.room, socketClients)} );
+                        removeUserRoom(data.user, socketClients);
                     }
-                    removeUserRoom(data.user, socketClients);
                 }
 
         }else {
             console.log("no estaba conectado")
         }
 
-        
+        console.log(socketClients.size)
 
     });
 
@@ -153,7 +153,7 @@ io.on("connection", socket => {
 
     socket.on("waiting:deleteRoom", room => {
 
-        console.log(socketClients.size)
+
         socket.broadcast.to(room).emit("update:closedRoom");
         let sockets = getSocketsFromRoom(room, socketClients);
         sockets.forEach(socket => {
