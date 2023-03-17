@@ -31,6 +31,7 @@ app.use(sess.sessionConfig());
 //app.use("/profile", profileRouter);
 app.use("/home", homeRouter);
 
+
 const server = app.listen(app.get("port"), "", (req, res) => {
     console.log("Server is running on port: " + app.get("port"));
 });
@@ -101,6 +102,26 @@ app.post("/joinRoom", sess.sessionMiddleware, (req, res) => {
 })
 
 
+app.get("/game", sess.sessionMiddleware, (req, res) => {
+
+    if(socketClients.get(req.session.user).room == req.query.room){
+        req.session.room = req.query.room;
+        res.sendFile(path.join(__dirname, "public", "gamePage", "index.html"));
+    } else {
+        res.redirect("/");
+    }
+
+    
+});
+
+app.post("/changeSocket", sess.sessionMiddleware, (req, res) => {
+    res.status(200).send({ status:200, user:req.session.user, room:req.session.room });
+})
+
+
+
+
+
 io.on("connection", socket => {
     
 
@@ -122,10 +143,10 @@ io.on("connection", socket => {
                 }
 
         }else {
-            console.log("no estaba conectado")
+            console.log("solo tenia el modal abierto ")
         }
 
-        console.log(socketClients.size)
+        
 
     });
 
@@ -163,6 +184,13 @@ io.on("connection", socket => {
         deleteRoom(room, socketClients)
 
     });
+
+    socket.on("changeSocket", data => {
+        socketClients.get(data.user).socket = socket; 
+        socketClients.get(data.user).status="playing";
+    })
+
+
 
 
 });
