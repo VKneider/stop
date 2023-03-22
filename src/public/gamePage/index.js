@@ -1,26 +1,37 @@
 import mainFetch from "../Slice/fetch.js";
 
-//let mySocket = io();
 
 let init = async () => {
     
-    let NB = await slice.getInstance("complexNavbar", {
-        logo: "Stoppery",
-        id: "myNavbar",
-        sections: [
-            { link: "#leave", text: "Leave Room", id: "leave" },
-        ]
-    });
     
-    document.body.appendChild(NB);
-    
-    let call = await mainFetch.request("POST", {}, "/changeSocket");
+    let call = await mainFetch.request("GET", null, "/getUserData");
 		
 	if(call.status == 200){
+
         let socket = io();
-        socket.emit("changeSocket", { user: call.user, room: call.room });
-        //aqui se deberia instanciar el modal que se encarga de todo en la vida y mandarle al constructor el socket
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const room = urlParams.get('room');
+        socket.emit("changeSocket", { user: call.user, room:room});
+        let roomCall = await mainFetch.request("GET", null, "/getRoomData");
+        
+        console.log(roomCall)
+        let gameModal = await slice.getInstance("gameModal", { room: room, role:call.role, user:call.user, nickname:call.nickname, socket:socket, letters: roomCall.room.letters });
+        await gameModal.setUsers(room)
+        document.body.appendChild(gameModal);
+        socket.emit("room:connected", room)
+        
+        
+
+
     }else{
         window.location.href = "/";
     }
+
+    
+
+    
 }
+
+init();
+

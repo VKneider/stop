@@ -16,17 +16,23 @@
         if(data && typeof data !== "object") throw new Error("Invalid data, not json");
         const controller = new AbortController()
 
-        
-        let options = {
-            method: method,
-            headers: {
-                "Content-Type": "application/json"
-            },
-            signal: controller.signal,
-          
-            
+        let options;
+        if(method !="GET"){
+            options = {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                signal: controller.signal,
+            }
+        }else{
+            options = {
+                method: method,
+                signal: controller.signal,
+            }
         }
-
+        
+        
         if(data!=null){
             options.body = JSON.stringify(data);
         }

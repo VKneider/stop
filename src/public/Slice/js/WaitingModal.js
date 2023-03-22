@@ -59,6 +59,11 @@ export default class WaitingModal extends HTMLElement {
                 }
             });
 
+            this.socket.on("redirectToRoom", data =>{
+                window.location.href=`http://localhost:3003/game?room=${data}`
+            })
+
+
             this.socket.on("update:closedRoom", async () => {
                 if (this.active != false) {
                     console.log("room closed");
@@ -86,7 +91,9 @@ export default class WaitingModal extends HTMLElement {
 
         } else if (call.status == 404) {
             alertNotFound.show();
-        } else {
+        } else if(call.status==403){
+            window.location.href=`http://localhost:3003/game?room=${call.room}`
+          }else{
             alertFull.show();
         }
     }

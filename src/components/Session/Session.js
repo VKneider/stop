@@ -31,7 +31,7 @@ class Session {
         let userData = await db.loadDBSentences(db.sentences.getUserData, [email]);
         if (userData.rows.length!=0) {
             if (await comparePassword(password, userData.rows[0].password)) {
-                req = this.createSession(req, res, email, 2);
+                req = this.createSession(req, res, email, 2, userData.rows[0].username);
                 res.status(200).send({ message: "User logged in", status:200 });
             }else{
                 res.status(200).send({ message: "Password and email dont match", status:403 });
@@ -45,12 +45,13 @@ class Session {
 
     async register(req, res) {
         
-        let { password, email } = req.body;
+        let { password, email, username } = req.body;
+        console.log(req.body.username)
         let userExists = await db.loadDBSentences(db.sentences.getUserData, [email]);
         if (userExists.rows.length != 0) {
             res.status(200).send({ message: "User already registered", status:409 });
         } else {
-            let encryptedData =  encryptJSON({email:email, password:password})
+            let encryptedData =  encryptJSON({email:email, password:password, username:username})
             let html = mailer.createValidationTemplate(`http://localhost:3003/validate?data=${encryptedData}`);
             let mailOptions = mailer.configureMail(email, "Validate your account", html);
             await mailer.sendMail(mailOptions);
@@ -61,7 +62,7 @@ class Session {
 
     async validateAccount(req, res) {
 
-        let { password, email } = req.body;
+        let { password, email, username } = req.body;
         let userExists = await db.loadDBSentences(db.sentences.getUserData, [email]);
         if (userExists.rows.length != 0) {
             res.status(200).send({ message: "User already registered", status:409 });
@@ -70,10 +71,10 @@ class Session {
             let token = req.originalUrl.split("?")[1].slice(5)
             let decryptedData = decryptJSON(token);
 
-            let {email, password} = decryptedData;
+            let {email, password,username} = decryptedData;
 
             let encryptedPassword = await encryptPassword(password);
-            await db.loadDBSentences(db.sentences.insertUser, [email, encryptedPassword,2]);
+            await db.loadDBSentences(db.sentences.insertUser, [email, encryptedPassword,2, username]);
             res.redirect("http://localhost:3003");
         }
         
@@ -84,10 +85,11 @@ class Session {
         res.status(200).send({ message: "Session destroyed", status:200 });
     }
 
-    createSession(req, res, userEmail, profile) {
+    createSession(req, res, userEmail, profile, nickname) {
         req.session.logged = true;
         req.session.user = userEmail;
         req.session.profile = profile;
+        req.session.nickname= nickname;
         return req;
     }
 

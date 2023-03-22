@@ -38,35 +38,63 @@ export default class CreateRoomModal extends HTMLElement {
       this.maximumPlayers=Number(this.shadowRoot.getElementById("playersInput").value);
       console.log(this.maximumPlayers)
       let call = await mainFetch.request("POST", {max:this.maximumPlayers}, "/createRoom");
-      this.room = call.room;
-      this.socket.emit('joinRoom', {user:call.user, room:this.room});
-      slice.controller.components.delete("myBtn2")
-      slice.controller.components.delete("playersInput")
 
-      
-      this.shadowRoot.getElementById("center").innerHTML=`
-      <div id="main-text">  Waiting for other players to Join </div>
-      <div class="spacing">a</div>
-      <div class="players"> Room: ${this.room} </div>
-      <div id="players">1/${this.maximumPlayers}</div>
-      <button id="closeBtn">X</button>  
-      `;
-      
-      this.socket.on('update:waitingPlayers', (data) => {
-        if(this.active!=false){
-          this.players=data.players;
-          this.shadowRoot.getElementById("players").innerHTML=`${data.players}/${this.maximumPlayers}`;
-        }
-      })
-      
-      this.shadowRoot.getElementById("closeBtn").addEventListener("click", () => {
-        this.active=false;
+      if(call.status==200){
+
+        this.room = call.room;
+        this.socket.emit('joinRoom', {user:call.user, room:this.room});
         slice.controller.components.delete("myBtn2")
-        this.socket.emit('waiting:deleteRoom', this.room)
         slice.controller.components.delete("playersInput")
-        this.remove();
-        console.log(slice.controller.components)
-    });
+        slice.controller.components.delete("myBtn3")
+  
+  
+        
+        this.shadowRoot.getElementById("center").innerHTML=`
+        <div id="main-text">  Waiting for other players to Join </div>
+        <div class="spacing">a</div>
+        <div class="players"> Room: ${this.room} </div>
+        <div id="players">1/${this.maximumPlayers}</div>
+        <button id="closeBtn">X</button>  
+        `;
+        
+        this.socket.on('update:waitingPlayers', async (data) => {
+          if(this.active!=false){
+            this.players=data.players;
+            this.shadowRoot.getElementById("players").innerHTML=`${data.players}/${this.maximumPlayers}`;
+            if(this.players==this.maximumPlayers){
+              
+              slice.controller.components.delete("myBtn3")
+              let joinRoomBtn = await slice.getInstance("Button", { value: "Start Game", id:"myBtn3", style: { width: "80%", margin: "20px", background: "#EB455F" } });
+  
+              joinRoomBtn.addEventListener("click", e =>{
+                this.socket.emit("startGame", this.room)
+                this.socket.emit("createRoom", this.room)
+              })
+  
+              this.socket.on("redirectToRoom", data =>{
+                window.location.href=`http://localhost:3003/game?room=${data}`
+              })
+  
+              this.shadowRoot.getElementById("center").appendChild(joinRoomBtn)
+  
+  
+  
+            }
+          }
+        })
+        
+        this.shadowRoot.getElementById("closeBtn").addEventListener("click", () => {
+          this.active=false;
+          slice.controller.components.delete("myBtn2")
+          this.socket.emit('waiting:deleteRoom', this.room)
+          slice.controller.components.delete("playersInput")
+          slice.controller.components.delete("myBtn3")
+          this.remove();
+      });
+      } else if(call.status==403){
+
+        window.location.href=`http://localhost:3003/game?room=${call.room}`
+      }
 
     }
 
@@ -104,6 +132,7 @@ export default class CreateRoomModal extends HTMLElement {
 
         this.shadowRoot.getElementById("closeBtn").addEventListener("click", () => {
           slice.controller.components.delete("myBtn2")
+          slice.controller.components.delete("myBtn3")
          // slice.controller.components.delete(this.id)
           slice.controller.components.delete("playersInput")
 

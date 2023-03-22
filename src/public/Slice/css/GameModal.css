@@ -1,0 +1,231 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+.main {
+    background: #FCFFE7;
+   
+    width: 80%;
+    height: 90%;
+    border: 5px solid #2B3467;
+    border-radius: 15px;
+    box-shadow: 0 0 50px 0 #00000050;
+}
+
+.center-screen {
+    position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-right: -50%;
+      transform: translate(-50%, -50%);
+      z-index: 100000; 
+}
+
+.timer, .letter{
+    font-size: 40px;
+    line-height: 65px;
+    border: 2px solid #2B3467;
+    border-radius: 360px;
+    height: 65px;
+    width: 65px;
+    font-weight: 600;
+}
+.letter{
+    font-size: 60px;
+    text-align: center;
+    color:white;
+}
+.timer{
+    text-align: center;
+    background-color:white;
+    color:#2B3467;
+    
+
+}
+
+.utils{
+    align-items: center;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: fit-content;
+    background-color: #2B3467;
+    border-radius: 360px;
+    margin: 5px auto;
+    padding: 5px;
+}
+
+.flex{
+    display:flex;
+    flex-direction: row;
+}
+.container2{
+    background-color: linear-gradient(0deg, #BAD7E9, #2B3467);
+    margin: 10px;
+    height: 80%;
+}
+
+input{
+    background-color: #eee;
+	border: none;
+	padding: 12px 15px;
+	margin: 8px 0;
+	width: 100%;
+    border-radius: 100px;
+}
+
+
+.mainGrid{
+    height: auto;
+    width: 100%;
+    border: 5px solid white;
+    border-radius: 30px;
+    background-color: #2B3467;
+    margin-left: 10px;
+}
+
+
+#title-game{
+    font-family: sans-serif;
+    margin-top: 5px;
+    height: fit-content;
+    font-size: 40px;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.gridLabel{
+    color: white;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    text-align: center;
+    justify-content: center;
+    margin: 20px;
+    
+}
+
+.category{
+    margin: 0 auto;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-bottom: 40px;
+ 
+}
+
+.label{
+    margin-bottom: 5px;
+}
+
+.button {
+    appearance: none;
+    background-color: #000000;
+    border: 2px solid #1A1A1A;
+    border-radius: 360px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Roobert,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    font-size: 20px;
+    font-weight: 600;
+    line-height: normal;
+    min-height: 60px;
+    min-width: 0;
+    outline: none;
+    text-align: center;
+    text-decoration: none;
+    transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: 100%;
+    will-change: transform;
+    align-items: center;
+  }
+  
+  .button:disabled {
+    pointer-events: none;
+  }
+  
+  .button:hover {
+    border: 2px solid white;
+    box-shadow: 0 0 5px 0 white;
+    transform: translateY(-5px);
+    scale: 1.05;
+  }
+  
+  .button:active {
+    background-color: #BAD7E9;
+    color: black;
+    box-shadow: none;
+    transform: translateY(0);
+    scale: 1;
+  }
+
+
+
+
+.players{
+    user-select: none;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    height: auto;
+    width: 18%;
+    border: 5px solid white;
+    background-color: #2B3467;
+    border-radius: 30px;
+}
+.playersGrid{
+    border-top: 2px solid #1a2149;
+    padding: 5%;
+    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.userGrid{
+    text-align: start;
+    color:#EB455F;
+    font-weight: bold;
+
+}
+
+.userImg{
+    width: 50px;
+    height: 50px;
+    font-size: 100px;
+    border: 2px solid #EB455F;
+    border-radius: 100px;
+    margin: 0 auto;
+
+}
+span{
+    font-size:48px
+}
+
+
+.material-symbols-outlined {
+    font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'OPSZ' 48,
+    'GRAD' 0
+}
+
+.titlePlayers{
+    font-size: 30px;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    margin-bottom: 15px;
+    margin-top: 10px;
+}

@@ -8,8 +8,8 @@ export default class Controller {
     toRegister(component) {
 
         if (this.components.has(component.id)) {
-            component.remove();
-            return alert("ALERT: A Component with the same ID is already registered");
+            //component.remove();
+            return console.log(`ALERT: A Component with the same ID is already registered ${component.id}`);
         }
             
         if (component.id == "") {

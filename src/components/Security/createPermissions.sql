@@ -22,8 +22,10 @@ CREATE TABLE profile(
 
 CREATE TABLE users(
     id_user SERIAL NOT NULL CHECK (id_user > 0),
-    password VARCHAR(100) NOT NULL,
-    email VARCHAR(50) NOT NULL,
+    password VARCHAR(100) NOT NULL CHECK (password !=''),
+    email VARCHAR(50) NOT NULL CHECK (email !='') ,
+    username VARCHAR(50) NOT NULL CHECK (username !=''),
+
 
     id_profile INTEGER NOT NULL CHECK (id_profile > 0),
     FOREIGN KEY (id_profile) REFERENCES profile (id_profile),
