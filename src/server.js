@@ -15,12 +15,18 @@ import socketManager from "./components/SocketManager/SocketManager.js";
 //Schemas and Middlewares
 import { userLoginSchema, userRegisterSchema } from "./Validations/userValidation.js";
 import validationYup from "./Middlewares/validationMiddleware.js";
-import gameMiddleware from "./Middlewares/gameMiddleware.js";
-import { generateRoundWords,  getCategories, generateRepeatedWords, generateTotalRoundPointsMap } from "./components/SocketManager/utils.js";
+import { generateRoundWords, getCategories, generateRepeatedWords, generateTotalRoundPointsMap } from "./socketManager/rooms/utils.js";
 
 //Routers
 import homeRouter from "./Routes/homeRouter.js";
 import profileRouter from "./Routes/profileRouter.js";
+import gameRouter from "./Routes/gameRouter.js";
+
+import { genRoomID, getRoomById, getRooms, createRoom, deleteRoom, isRoomFull, addPlayerToRoom, removePlayerFromRoom, verifyRoomExists, getPlayerDataFromSocketID } from "./socketManager/rooms/newRoomSchema.js";
+
+
+import homeEvents from "./socketManager/events/homeEvents.js";
+
 
 const app = express();
 const bodyParser = express.json();
@@ -29,6 +35,8 @@ app.use(cors());
 app.use(bodyParser);
 app.use(express.static(path.join(__dirname, "public")));
 app.use(sess.sessionConfig());
+
+app.use("/game", gameRouter);
 app.use("/home", homeRouter);
 
 //app.use("/profile", profileRouter);
@@ -38,6 +46,8 @@ const server = app.listen(app.get("port"), "", (req, res) => {
 });
 
 const io = new socketIO(server);
+homeEvents(io);
+
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "landingPage", "index.html"));
@@ -67,128 +77,40 @@ app.post("/register", validationYup(userRegisterSchema), (req, res) => {
     sess.register(req, res);
 });
 
-app.post("/createRoom", sess.sessionMiddleware, (req, res) => {
-    if (req.session.room) {
-        res.status(200).send({ message: "You are already in a room", status: 403, room: req.session.room });
-        return;
-    }
 
-    let newRoom = socketManager.genRoomID();
-    socketManager.setUser(req.session.user, { room: newRoom, status: "waiting", max: req.body.max, role: "host", nickname: req.session.nickname });
-    res.status(200).send({ room: newRoom, status: 200, user: req.session.user });
-});
-
-app.post("/joinRoom", sess.sessionMiddleware, (req, res) => {
-    if (req.session.room) {
-        res.status(200).send({ message: "You are already in a room", status: 403, room: req.session.room });
-        return;
-    }
-
-    if (socketManager.verifyRoom(req.body.room) == false) {
-        res.status(200).send({ message: "Room not found", status: 404 });
-        return;
-    }
-
-    if (socketManager.verifyRoomFull(req.body.room) == true) {
-        res.status(200).send({ message: "Room is full", status: 400 });
-        return;
-    }
-
-    let roomMax = socketManager.getRoomMax(req.body.room);
-    let myRoom = req.body.room;
-
-    socketManager.setUser(req.session.user, { room: req.body.room, status: "waiting", max: roomMax, role: "player", nickname: req.session.nickname });
-    res.status(200).send({ room: req.body.room, user: req.session.user, status: 200, max: roomMax });
-});
-
-app.get("/game", sess.sessionMiddleware, (req, res) => {
-    if (socketManager.getUser(req.session.user).room == req.query.room) {
-        req.session.room = req.query.room;
-        res.sendFile(path.join(__dirname, "public", "gamePage", "index.html"));
-    } else {
-        res.redirect("/");
-    }
-});
-
-app.get("/getPlayersDataInRoom", sess.sessionMiddleware, (req, res) => {
-    let players = socketManager.getPlayersDataInRoom(req.query.room);
-    res.status(200).send({ players: players, status: 200 });
-});
 
 app.get("/getUserData", sess.sessionMiddleware, (req, res) => {
-    let user = socketManager.getUser(req.session.user);
+    let user = getRoomById(req.session.room).players.get(req.session.user);
     res.status(200).send({ user: req.session.user, room: req.session.room, status: 200, nickname: req.session.nickname, role: user.role });
 });
 
-app.get("/getRoomData", sess.sessionMiddleware, (req, res) => {
-    let room = socketManager.getRoomData(req.session.room);
-    res.status(200).send({ room: room, status: 200 });
-});
+
 
 io.on("connection", socket => {
-    socket.on("disconnect", () => {
-        let data = socketManager.getDisconnectData(socket.id);
+    socket.on("disconnecting", () => {
+        if(socket.rooms.size>1){
 
-        if (data != null && data != undefined) {
-            if (data.status != "playing") {
-                if (data.role == "host") {
-                    socketManager.deleteRoom(data.room);
-                    socket.broadcast.to(data.room).emit("update:closedRoom");
+            let rooms = Array.from(socket.rooms);
+            let myRoom = rooms[1];
+            let myRoomData = getRoomById(myRoom);
+    
+            let playerData = getPlayerDataFromSocketID(socket.id);
+            if (myRoomData.status != "playing") {
+                if (playerData.player.role == "host") {
+                    deleteRoom(myRoom);
+                    socket.broadcast.to(myRoom).emit("update:closedRoom");
                 } else {
-                    if (io.sockets.adapter.rooms.get(data.room).size != undefined) {
-                        let players = socketManager.getRoomUsers(data.room) - 1;
-                        socket.broadcast.to(data.room).emit("update:waitingPlayers", { players: players, max: socketManager.getRoomMax(data.room) });
-                        socketManager.removeUserRoom(data.user);
+                    if (io.sockets.adapter.rooms.get(myRoom).size != undefined) {
+                        let players = myRoomData.players.size;
+                        socket.broadcast.to(myRoom).emit("update:waitingPlayers", { players: players, max: myRoomData.max });
                     }
                 }
-            } else {
-                if (socketManager.getRoomData(data.room).connected > 0) {
-                    socketManager.getRoomData(data.room).connected--;
-                }
             }
-        } else {
-            console.log("solo tenia el modal abierto ");
         }
     });
 
-    socket.on("waiting:join", data => {
-        socketManager.getUser(data.user).socket = socket;
-        socket.join(data.room);
-        io.in(data.room).emit("update:waitingPlayers", { players: io.sockets.adapter.rooms.get(data.room).size, max: data.max });
-    });
 
-    socket.on("waiting:leave", data => {
-        socket.leave(data.room);
-        io.in(data.room).emit("update:waitingPlayers", { players: io.sockets.adapter.rooms.get(data.room).size, max: data.max }); //falta una validacion
-        socketManager.removeUserRoom(data.user);
-    });
-
-    socket.on("joinRoom", data => {
-        socketManager.getUser(data.user).socket = socket;
-        socket.join(data.room);
-    });
-
-    socket.on("waiting:deleteRoom", room => {
-        //if(socketManager.getUser(data.user).status=="playing") return;
-
-        socket.broadcast.to(room).emit("update:closedRoom");
-        let sockets = socketManager.getSocketsFromRoom(room);
-        sockets.forEach(socket => {
-            socket.leave(room);
-        });
-        socketManager.deleteRoom(room);
-    });
-
-    socket.on("changeSocket", data => {
-        socketManager.getUser(data.user).socket = socket;
-
-        socket.join(data.room);
-    });
-
-    socket.on("startGame", room => {
-        socketManager.changeGameStatus(room, "playing");
-        io.in(room).emit("redirectToRoom", room);
-    });
+   
 
     socket.on("room:connected", room => {
         let myRoom = socketManager.getRoomData(room);
@@ -200,54 +122,11 @@ io.on("connection", socket => {
         }
     });
 
-    socket.on("createRoom", room => {
-        socketManager.createRoom(room);
-    });
-
+    
     socket.on("game:endGame", room => {
         io.in(room).emit("game:stopInput");
     });
 
     
-
-    socket.on("game:sendValues", data => {
-        let myRoom = socketManager.getRoomData(data.room);
-        myRoom.words = [...myRoom.words, ...data.values];
-        myRoom.received++;
-
-        if (myRoom.received == myRoom.players.size) {
-            //io.in(data.room).emit("game:startVotations")
-            //se deberia enviar las palabras a los jugadores para que hagan las votaciones, luego deberia verificarse que las 3 votaciones se recibieron y se deberia enviar el result
-
-            let roundWords = generateRoundWords(myRoom.words, data.round);
-            let categories = getCategories(roundWords);
-            console.log(categories, "categories")
-            let repeatedWords = generateRepeatedWords(categories, roundWords);
-            console.log(repeatedWords, "repeated")
-                for(let k = 0; k < roundWords.length; k++){
-                    let word = roundWords[k];
-                    if(word.value=="none"){
-                        word.points=0;
-                        continue;
-                    }
-                    if(repeatedWords.includes(word.value)){
-                        word.points=50;
-                    }else{
-                        word.points=100;
-                    }
-                }
-                console.log(roundWords);
-
-            let mapPoints = generateTotalRoundPointsMap(roundWords);
-
-            const responseJson = {}
-            mapPoints.forEach((value, key) => {
-                responseJson[key] = value;
-            });
-
-            io.in(data.room).emit("game:updatePoints", responseJson);
-        } 
-    });
 });
 
-export default io;

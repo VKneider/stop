@@ -1,4 +1,4 @@
-import { getRandomValues, deepCopyArray } from "./utils.js";
+import { getRandomValues, deepCopyArray } from "../../socketManager/rooms/utils.js";
 class SocketManager{
     constructor(){
         this.socketClients = new Map();

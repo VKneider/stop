@@ -18,8 +18,7 @@ export default class GameModal extends HTMLElement {
 
                     this.socket.on("timer:on", a => {
                         this.setCategories();
-                        this.showLetter();
-                        this.startTimer();
+                        this.showLetter()
                     });
 
                     this.socket.on("game:stopInput", data => {
@@ -78,22 +77,23 @@ export default class GameModal extends HTMLElement {
         });
     }
 
-    async setUsers(room) {
-        console.log(this.room);
-        let call = await mainFetch.request("GET", null, `/getPlayersDataInRoom?room=${room}`);
-        this.players = call.players;
-        let playersContainer = this.shadowRoot.getElementById("players");
-        this.players.forEach(player => {
+     setUsers() {
+    
+        let playersContainer = this.shadowRoot.getElementById("playersContainer");
+        playersContainer.innerHTML = "";
+        console.log(this.roomPlayers)
+        for(let player in this.roomPlayers){
             playersContainer.innerHTML += `
             <div class="playersGrid"> 
             <span class="userImg material-symbols-outlined"> Person </span>
                 <div class="userGrid">
                     <div id="${player.nickname}">${player.nickname}</div>
-                    <div id="${player.nickname}-score">0</div>
+                    <div id="${player.nickname}-score">${player.score}</div>
                 </div>
             </div>
             `;
-        });
+        }        
+
     }
 
     showLetter() {
@@ -104,16 +104,7 @@ export default class GameModal extends HTMLElement {
 
     startTimer() {
         let timerContainer = this.shadowRoot.getElementById("timer");
-        let time = 99;
-        let timer = setInterval(() => {
-            time--;
-            timerContainer.innerHTML = String(time);
-            if (time == 0) {
-                timerContainer.innerHTML = String(time);
-                clearInterval(timer);
-                // this.socket.emit("game:endGame", {room:this.room});
-            }
-        }, 1000);
+        timerContainer.innerHTML=this.actualLetter;
     }
 
     sendValues() {

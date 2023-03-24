@@ -34,11 +34,11 @@ export default class WaitingModal extends HTMLElement {
 
     async changeHTML() {
         this.room = slice.controller.getInstance("myInput2").value;
-        let call = await mainFetch.request("POST", { room: this.room }, "/joinRoom");
+        let call = await mainFetch.request("POST", { room: this.room }, "/home/joinRoom");
 
         if (call.status == 200) {
             this.active = true;
-            this.socket.emit("waiting:join", { user: call.user, room: this.room, max: call.max });
+            this.socket.emit("waiting:joinRoom", { user: call.user, room: this.room, max: call.max, role: "player" });
             slice.controller.components.delete("myBtn2");
             slice.controller.components.delete("myInput2");
 
@@ -81,9 +81,8 @@ export default class WaitingModal extends HTMLElement {
             }
 
             this.shadowRoot.getElementById("closeBtn").addEventListener("click", () => {
-                console.log("close");
                 slice.controller.components.delete("myBtn2");
-                this.socket.emit("waiting:leave", { room: this.room, user: call.user, max: call.max });
+                this.socket.emit("waiting:leaveRoom", { room: this.room, user: call.user, max: call.max });
                 slice.controller.components.delete("myBtn2");
                 slice.controller.components.delete("myInput2");
                 this.remove();
@@ -98,10 +97,6 @@ export default class WaitingModal extends HTMLElement {
         }
     }
 
-    addPlayer() {
-        this.players++;
-        this.shadowRoot.getElementById("players").innerHTML = `${this.players}/3`;
-    }
 
     async init() {
         const centeredContainer = this.shadowRoot.getElementById("center");
@@ -114,7 +109,6 @@ export default class WaitingModal extends HTMLElement {
         if (slice.controller.components.has("myBtn2") || slice.controller.components.has("myInput2")) {
             await slice.controller.components.delete("myBtn2");
             await slice.controller.components.delete("myInput2");
-            console.log("deleted");
         }
 
         let joinRoomBtn = await slice.getInstance("Button", { value: "Join Room", id: "myBtn2", style: { width: "80%", margin: "20px", background: "#EB455F" } });

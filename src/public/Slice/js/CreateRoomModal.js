@@ -21,7 +21,7 @@ export default class CreateRoomModal extends HTMLElement {
             this.socket=this.props.socket;
           }
 
-
+          this.startGameBtn;
         }
         
         slice.controller.toRegister(this);
@@ -36,17 +36,17 @@ export default class CreateRoomModal extends HTMLElement {
     async changeHTML(){
       this.active=true;
       this.maximumPlayers=Number(this.shadowRoot.getElementById("playersInput").value);
-      console.log(this.maximumPlayers)
-      let call = await mainFetch.request("POST", {max:this.maximumPlayers}, "/createRoom");
+
+      let call = await mainFetch.request("POST", {max:this.maximumPlayers}, "/home/createRoom");
 
       if(call.status==200){
 
         this.room = call.room;
-        this.socket.emit('joinRoom', {user:call.user, room:this.room});
+        this.socket.emit('waiting:joinRoom', {user:call.user, room:this.room, role:"host"});
         slice.controller.components.delete("myBtn2")
         slice.controller.components.delete("playersInput")
         slice.controller.components.delete("myBtn3")
-  
+        
   
         
         this.shadowRoot.getElementById("center").innerHTML=`
@@ -64,19 +64,18 @@ export default class CreateRoomModal extends HTMLElement {
             if(this.players==this.maximumPlayers){
               
               slice.controller.components.delete("myBtn3")
-              let joinRoomBtn = await slice.getInstance("Button", { value: "Start Game", id:"myBtn3", style: { width: "80%", margin: "20px", background: "#EB455F" } });
+              this.startGameBtn = await slice.getInstance("Button", { value: "Start Game", style: { width: "80%", margin: "20px", background: "#EB455F" } });
   
-              joinRoomBtn.addEventListener("click", e =>{
-                this.socket.emit("startGame", this.room)
-                this.socket.emit("createRoom", this.room)
+              this.startGameBtn.addEventListener("click", e =>{
+                this.socket.emit("waiting:redirect", this.room)
               })
   
               this.socket.on("redirectToRoom", data =>{
                 window.location.href=`http://localhost:3003/game?room=${data}`
               })
   
-              this.shadowRoot.getElementById("center").appendChild(joinRoomBtn)
-  
+              this.shadowRoot.getElementById("center").appendChild(this.startGameBtn)
+              
   
   
             }
@@ -98,12 +97,10 @@ export default class CreateRoomModal extends HTMLElement {
 
     }
 
-    addPlayer(){
-        this.players++;
-        this.shadowRoot.getElementById("players").innerHTML=`${this.players}/3`;
-        }
+   
 
       async init (){
+        this.startGameBtn=null;
         const centeredContainer = this.shadowRoot.getElementById("center");
 
         centeredContainer.innerHTML="";
@@ -113,7 +110,7 @@ export default class CreateRoomModal extends HTMLElement {
 
         //centeredContainer.innerHTML+=`<div id="main-text">  Type the ID of the room you want to Join </div>`
 
-        let joinRoomBtn = await slice.getInstance("Button", { value: "Join Room", id:"myBtn2", style: { width: "80%", margin: "20px", background: "#EB455F" } });
+        let joinRoomBtn = await slice.getInstance("Button", { value: "Create Room", id:"myBtn2", style: { width: "80%", margin: "20px", background: "#EB455F" } });
         let myInput = await slice.getInstance("Input", { type: "number", id:"playersInput", min:2, max:9, placeholder: "Ammount of Players", style: { width: "80%", "margin-top": "40px" }});
 
 

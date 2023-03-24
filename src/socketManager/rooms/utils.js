@@ -49,9 +49,6 @@ function getCategories(array) {
 //Function that gets an array of objects and 
 
 
-function verifyIfRepeated(word){
-    
-}
 
 function generateRepeatedWords(categories,roundWords){
     let repeatedWords = roundWords
@@ -89,4 +86,10 @@ function generateTotalRoundPointsMap(words){
         return userPointsMap;
 }
 
-export { getRandomValues, deepCopyArray, generateRoundWords, verifyIfRepeated, getCategories, generateRepeatedWords, generateTotalRoundPointsMap };
+function mapToObject(map) {
+    return Object.fromEntries(
+      [...map].map(([key, value]) => [key, { ...value }])
+    );
+  }
+
+export { getRandomValues, deepCopyArray, generateRoundWords,  getCategories, generateRepeatedWords, generateTotalRoundPointsMap, mapToObject };
