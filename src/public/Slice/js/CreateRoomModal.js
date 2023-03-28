@@ -8,7 +8,7 @@ export default class CreateRoomModal extends HTMLElement {
       slice.controller.loadTemplate("./Slice/templates/CreateRoomModal.html").then(template => {
           this.attachShadow({ mode: 'open' });
           this.shadowRoot.appendChild(template.content.cloneNode(true));
-          
+          this.ready=false;
           this.activePlayers=1;
           this.maximumPlayers;
           if(this.props!=undefined){
@@ -34,8 +34,15 @@ export default class CreateRoomModal extends HTMLElement {
     }
 
     async changeHTML(){
+      
+      let playersInput = this.shadowRoot.getElementById("playersInput");
+      if(!playersInput.value  || Number(playersInput.value) == NaN || Number(playersInput.value) < 2 || Number(playersInput.value) > 9){
+        this.maximumPlayers=2;
+      }else{
+        this.maximumPlayers=Number(this.shadowRoot.getElementById("playersInput").value);
+      }
+
       this.active=true;
-      this.maximumPlayers=Number(this.shadowRoot.getElementById("playersInput").value);
 
       let call = await mainFetch.request("POST", {max:this.maximumPlayers}, "/home/createRoom");
 
@@ -61,8 +68,13 @@ export default class CreateRoomModal extends HTMLElement {
           if(this.active!=false){
             this.players=data.players;
             this.shadowRoot.getElementById("players").innerHTML=`${data.players}/${this.maximumPlayers}`;
+            if(this.ready){
+              this.shadowRoot.getElementById("center").removeChild(this.startGameBtn)
+              this.ready=false;
+            }
+
             if(this.players==this.maximumPlayers){
-              
+              this.ready=true;
               slice.controller.components.delete("myBtn3")
               this.startGameBtn = await slice.getInstance("Button", { value: "Start Game", style: { width: "80%", margin: "20px", background: "#EB455F" } });
   
@@ -92,7 +104,7 @@ export default class CreateRoomModal extends HTMLElement {
       });
       } else if(call.status==403){
 
-        window.location.href=`http://localhost:3003/game/?room=${call.room}`
+        window.location.href=`http://localhost:3003/game?room=${call.room}`
       }
 
     }
@@ -102,26 +114,25 @@ export default class CreateRoomModal extends HTMLElement {
       async init (){
         this.startGameBtn=null;
         const centeredContainer = this.shadowRoot.getElementById("center");
-
         centeredContainer.innerHTML="";
         const text = document.createElement("div");
         text.id = "main-text";
         text.innerHTML="Type the maximum number of players you want to play with"
 
         //centeredContainer.innerHTML+=`<div id="main-text">  Type the ID of the room you want to Join </div>`
-
+        
         let joinRoomBtn = await slice.getInstance("Button", { value: "Create Room", id:"myBtn2", style: { width: "80%", margin: "20px", background: "#EB455F" } });
         let myInput = await slice.getInstance("Input", { type: "number", id:"playersInput", min:2, max:9, placeholder: "Ammount of Players", style: { width: "80%", "margin-top": "40px" }});
-
-
+        
+        
         joinRoomBtn.addEventListener("click", async () => {
           await this.changeHTML()
         });
-
+        
         let btn=document.createElement("button")
         btn.id="closeBtn"
         btn.innerHTML="X"
-
+        
         centeredContainer.appendChild(text);
         centeredContainer.appendChild(myInput);
         centeredContainer.appendChild(joinRoomBtn);
@@ -130,9 +141,9 @@ export default class CreateRoomModal extends HTMLElement {
         this.shadowRoot.getElementById("closeBtn").addEventListener("click", () => {
           slice.controller.components.delete("myBtn2")
           slice.controller.components.delete("myBtn3")
-         // slice.controller.components.delete(this.id)
+          // slice.controller.components.delete(this.id)
           slice.controller.components.delete("playersInput")
-
+          
           this.remove();
         });
         

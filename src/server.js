@@ -10,18 +10,13 @@ import { Server as socketIO } from "socket.io";
 
 //Components
 import sess from "./components/Session/Session.js";
-import socketManager from "./components/SocketManager/SocketManager.js";
 
-//Schemas and Middlewares
-import { userLoginSchema, userRegisterSchema } from "./Validations/userValidation.js";
-import validationYup from "./Middlewares/validationMiddleware.js";
-import { generateRoundWords, getCategories, generateRepeatedWords, generateTotalRoundPointsMap } from "./socketManager/rooms/utils.js";
 
 //Routers
 import homeRouter from "./Routes/homeRouter.js";
 import profileRouter from "./Routes/profileRouter.js";
 import gameRouter from "./Routes/gameRouter.js";
-
+import sessionRouter from "./Routes/sessionRouter.js";
 import { genRoomID, getRoomById, getRooms, createRoom, deleteRoom, isRoomFull, addPlayerToRoom, removePlayerFromRoom, verifyRoomExists, getPlayerDataFromSocketID } from "./socketManager/rooms/newRoomSchema.js";
 
 
@@ -38,6 +33,7 @@ app.use(sess.sessionConfig());
 
 app.use("/game", gameRouter);
 app.use("/home", homeRouter);
+app.use(sessionRouter);
 
 //app.use("/profile", profileRouter);
 
@@ -54,29 +50,6 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "landingPage", "index.html"));
 });
 
-app.get("/login", (req, res) => {
-    if (sess.isLogged(req, res) == true) {
-        res.redirect("/home");
-    } else {
-        res.sendFile(path.join(__dirname, "public", "loginRegister", "index.html"));
-    }
-});
-
-app.get("/validate", (req, res) => {
-    sess.validateAccount(req, res);
-});
-
-app.post("/login", validationYup(userLoginSchema), (req, res) => {
-    sess.login(req, res);
-});
-
-app.post("/logout", (req, res) => {
-    sess.logout(req, res);
-});
-
-app.post("/register", validationYup(userRegisterSchema), (req, res) => {
-    sess.register(req, res);
-});
 
 
 
@@ -94,6 +67,7 @@ io.on("connection", socket => {
             let rooms = Array.from(socket.rooms);
             let myRoom = rooms[1];
             let myRoomData = getRoomById(myRoom);
+            if(myRoomData==undefined) return;
   
     
             let playerData = getPlayerDataFromSocketID(socket.id);
@@ -112,11 +86,6 @@ io.on("connection", socket => {
         }
     });
 
-
-
-    socket.on("game:endGame", room => {
-        io.in(room).emit("game:stopInput");
-    });
 
     
 });

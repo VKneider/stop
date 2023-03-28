@@ -39,6 +39,10 @@ export default class GameModal extends HTMLElement {
                         }
                     });
 
+                    this.socket.on("game:endGame", data => {
+                        this.endGame(data);
+                    })
+
                     this.socket.on("game:startVotations", data => {
                         this.roundWords = data.words;
                         this.startVotations();
@@ -233,6 +237,25 @@ export default class GameModal extends HTMLElement {
             }
         }
         return categories;
+    }
+
+    async endGame(data){
+        let title = this.shadowRoot.getElementById("title-game");
+        if(data.winner.length>1){
+            title.innerHTML = `Game ended, there is a tie between`;
+            data.winner.forEach(winner => {
+                title.innerHTML += ` ${winner}, `;
+            });
+        }else{
+            title.innerHTML = `Game ended, the winner is ${data.winner[0]}`;
+        }
+
+        let call = await mainFetch.request("POST", {room:this.room}, "/game/deleteRoomSession")
+        if(call.status==200){
+            setTimeout(() => {
+                window.location.href = "http://localhost:3003/home";
+            }, 3000);
+        }
     }
 }
 

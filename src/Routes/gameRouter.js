@@ -25,4 +25,9 @@ gameRouter.get("/getRoomData", (req, res) => {
     res.status(200).send({ letters:room.letters, players:mapToObject(room.players),  status: 200 });
 });
 
+gameRouter.post("/deleteRoomSession", (req, res) => {
+    delete req.session.room;
+    res.status(200).send({ status: 200, message: "Room deleted" });
+})
+
 export default gameRouter;

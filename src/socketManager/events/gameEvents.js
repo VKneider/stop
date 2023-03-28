@@ -1,4 +1,4 @@
-import { genRoomID, getRoomById, getRooms, createRoom, deleteRoom, isRoomFull,getPlayerFromNickname, addPlayerToRoom, allPlayersVoted, allPlayersSent, removePlayerFromRoom, verifyRoomExists, assignSocketIDToPlayer, changeRoomStatus, allPlayersConnected } from "../rooms/newRoomSchema.js";
+import { genRoomID, getRoomById, getRooms, createRoom, deleteRoom, getGameWinner, isRoomFull,getPlayerFromNickname, addPlayerToRoom, allPlayersVoted, allPlayersSent, removePlayerFromRoom, verifyRoomExists, assignSocketIDToPlayer, changeRoomStatus, allPlayersConnected } from "../rooms/newRoomSchema.js";
 import { getCategories, generateRepeatedWords, generateTotalRoundPointsMap } from "../rooms/utils.js";
 
 export default function gameEvents(io) {
@@ -102,8 +102,21 @@ export default function gameEvents(io) {
                     player.sent = false;
                 });
 
+
                 if (myRoom.actualRound == myRoom.rounds) {
-                    io.in(data.room).emit("game:endGame");
+                    console.log("game:endGame", getGameWinner(data.room))
+                    io.in(data.room).emit("game:endGame", {winner: getGameWinner(data.room)});
+                    
+                    
+                    const socketsInRoom = io.sockets.adapter.rooms[data.room];
+                    if (socketsInRoom) {
+                        Object.keys(socketsInRoom.sockets).forEach((socketId) => {
+                            const socket = io.sockets.connected[socketId];
+                            socket.leave(data.room);
+                        });
+                    }
+                    deleteRoom(data.room);
+                    
                 } else {
                     io.in(data.room).emit("game:startNewRound");
                 }

@@ -22,7 +22,7 @@ homeRouter.post("/createRoom", (req, res) => {
     }
 
     let newRoom = genRoomID();
-    let rounds = 5
+    let rounds = 1
     createRoom(newRoom, req.body.max, rounds)
     addPlayerToRoom(newRoom, req.session.user, {nickname: req.session.nickname, role: "host", score:0, connected:false, sent:false, votation: false})
     res.status(200).send({ room: newRoom, status: 200, user: req.session.user});

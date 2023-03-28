@@ -21,7 +21,7 @@ export function createRoom(roomID, max, rounds){
         actualRound: 0,
         started: false,
         status: "waiting",
-        letters: getRandomValues(deepCopyArray(letters), 9),
+        letters: getRandomValues(deepCopyArray(letters), rounds),
         temporalWords: []
     }
 
@@ -132,3 +132,28 @@ export function getPlayerFromNickname(roomID, nickname){
         }
     }
 }
+
+
+
+//Determine the game winner and verify if there is a tie
+export function getGameWinner(roomID){
+    let room = rooms.get(roomID);
+    let winner = {score: 0};
+    let usersNicknames = [];
+    for(let [userEmail, player] of room.players){
+        if(player.score > winner.score){
+            winner = player;
+        }
+    }
+    
+    usersNicknames.push(winner.nickname);
+    for(let [userEmail, player] of room.players){
+        if(player.score == winner.score && player.nickname != winner.nickname){
+  
+            usersNicknames.push(player.nickname);
+        }
+    }
+
+    return usersNicknames;
+}
+
