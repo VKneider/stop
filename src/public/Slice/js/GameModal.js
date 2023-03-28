@@ -24,13 +24,13 @@ export default class GameModal extends HTMLElement {
                     });
 
                     this.socket.on("game:stopRound", data => {
-                        console.log("stop round");
-                        this.sendValues();
+                        //this.alertStop.show();
                         let categories = this.shadowRoot.querySelectorAll(".cate");
                         categories.forEach(category => {
                             category.disabled = true;
                         });
                         this.shadowRoot.getElementById("stopBtn").disabled = true;
+                        this.sendValues();
                     });
 
                     this.socket.on("game:updatePoints", map => {
@@ -59,6 +59,14 @@ export default class GameModal extends HTMLElement {
 
                 if (this.props.nickname != undefined) {
                     this.nickname = this.props.nickname;
+                }
+
+                if(this.alertFailStop != undefined){
+                    this.alertFailStop = this.props.alertFailStop;
+                }
+
+                if(this.alertStop!= undefined){
+                    this.alertStop = this.props.alertStop;
                 }
 
                 if (this.props.room != undefined) {
@@ -145,7 +153,7 @@ export default class GameModal extends HTMLElement {
         this.socket.emit("game:sendWords", { room: this.room, words: values, user: this.user, round: this.actualLetter, votes: 0 });
     }
 
-    async stop() {
+     stop() {
         let flag= true;
         let categories = this.shadowRoot.querySelectorAll(".cate");
         categories.forEach(category => {
@@ -155,7 +163,7 @@ export default class GameModal extends HTMLElement {
         if(flag){
             this.socket.emit("game:userStop", { room: this.room });
         } else{
-            const alertSuccess = await slice.getInstance("ToastAlert", {color:"red", text:"Fill all Inputs", icon:"error"});
+            //this.alertFailStop.show()
         }
     }
 
@@ -166,7 +174,7 @@ export default class GameModal extends HTMLElement {
         let roundCategories = this.getRoundCategories(this.roundWords);
         let finalWordsArray = [];
 
-        console.log();
+
         for (let j = 0; j < roundCategories.length; j++) {
             for (let k = 0; k < this.groupedRoundWords[roundCategories[j]].length; k++) {
                 let word = this.groupedRoundWords[roundCategories[j]][k];
@@ -179,15 +187,16 @@ export default class GameModal extends HTMLElement {
 
     nextRound() {}
 
-    nextVotation() {
+    nextVotation(data) {
         console.log("nextVotation");
         let title = this.shadowRoot.getElementById("title-game");
-        title.innerHTML = `Category: ${this.categories[this.categoryIndex]}`;
+        title.innerHTML = `Category: ${data.category}`;
         let categoryContainer = this.shadowRoot.getElementById("categoryContainer");
 
+        console.log(this.groupedRoundWords)
         categoryContainer.innerHTML = "";
-        for (let i = 0; i < this.groupedRoundWords[this.categories[this.categoryIndex]].length; i++) {
-            let word = this.groupedRoundWords[this.categories[this.categoryIndex]][i];
+        for (let i = 0; i < this.groupedRoundWords[data.category].length; i++) {
+            let word = this.groupedRoundWords[data.category][i];
             let div = document.createElement("div");
             div.classList.add("category");
             div.appendChild(word);

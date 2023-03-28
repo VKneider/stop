@@ -1,4 +1,4 @@
-import { genRoomID, getRoomById, getRooms, createRoom, deleteRoom, isRoomFull, addPlayerToRoom, allPlayersVoted, allPlayersSent, removePlayerFromRoom, verifyRoomExists, assignSocketIDToPlayer, changeRoomStatus, allPlayersConnected } from "../rooms/newRoomSchema.js";
+import { genRoomID, getRoomById, getRooms, createRoom, deleteRoom, isRoomFull,getPlayerFromNickname, addPlayerToRoom, allPlayersVoted, allPlayersSent, removePlayerFromRoom, verifyRoomExists, assignSocketIDToPlayer, changeRoomStatus, allPlayersConnected } from "../rooms/newRoomSchema.js";
 import { getCategories, generateRepeatedWords, generateTotalRoundPointsMap } from "../rooms/utils.js";
 
 export default function gameEvents(io) {
@@ -16,23 +16,6 @@ export default function gameEvents(io) {
             }
         });
 
-        /*
-        socket.on("game:sendValues", data => {
-            let myRoom = getRoomById(data.room);
-            myRoom.players.get(data.user).connected == true;
-
-            if (allPlayersConnected(data.room)) {
-                //io.in(data.room).emit("game:startVotations")
-                //se deberia enviar las palabras a los jugadores para que hagan las votaciones, luego deberia verificarse que las 3 votaciones se recibieron y se deberia enviar el result
-
-                let roundWords = generateRoundWords(myRoom.words, data.round);
-                
-            }
-        });
-
-        */
-
-        //guardar el user, la palabra y la categoria,
 
         socket.on("game:sendVotation", data => {
             console.log("sendVotation", data)
@@ -46,7 +29,6 @@ export default function gameEvents(io) {
                 let mainWords = myRoom.words.get(myRoom.actualRound);
                 for (let i = 0; i < myRoom.temporalWords.length; i++) {
                     const temporalWord = myRoom.temporalWords[i];
-                    console.log(temporalWord.voted)
                     const mainWordIndex = mainWords.findIndex(mainWord => (
                       mainWord.category === temporalWord.category &&
                       mainWord.value === temporalWord.value &&
@@ -64,12 +46,10 @@ export default function gameEvents(io) {
                     }
                   }
                 
-                  console.log("mainWords", mainWords)
                 
                 
                 for(let i=0; i<mainWords.length; i++){
                     let word = mainWords[i];
-                    console.log(word.votes, playersAmmount/2)
                     if(word.votes >= playersAmmount/2){
                         word.valid=true;
                     }else{
@@ -78,7 +58,6 @@ export default function gameEvents(io) {
 
                 }
 
-                console.log("mainWords", mainWords)
 
                 let roundWords = mainWords;
                 let categories = getCategories(roundWords);
@@ -106,6 +85,9 @@ export default function gameEvents(io) {
                 const responseJson = {};
                 mapPoints.forEach((value, key) => {
                     responseJson[key] = value;
+                    responseJson[key] += getPlayerFromNickname(data.room,key).score;
+                    getPlayerFromNickname(data.room,key).score += value;
+                    
                 });
 
 
@@ -141,15 +123,14 @@ export default function gameEvents(io) {
             let myRoom = getRoomById(data.room);
             myRoom.words.set(myRoom.actualRound, [...myRoom.words.get(myRoom.actualRound), ...data.words]);
             myRoom.players.get(data.user).sent = true;
-            let roundCategories = getCategories(myRoom.words.get(myRoom.actualRound));
-            console.log("roundCategories", roundCategories)
-
+            
             if (allPlayersSent(data.room)) {
                 io.in(data.room).emit("game:startVotations", { words: myRoom.words.get(myRoom.actualRound) });
                 let counter = 0;
-
+                let roundCategories = getCategories(myRoom.words.get(myRoom.actualRound));
+                
                 let x = () => {
-                    io.in(data.room).emit("game:nextVotation");
+                    io.in(data.room).emit("game:nextVotation", { category: roundCategories[counter] });
                     counter++;
                     if (counter == roundCategories.length) {
                         clearInterval(myInterval);

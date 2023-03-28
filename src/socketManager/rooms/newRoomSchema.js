@@ -124,3 +124,11 @@ export function allPlayersSent(roomID){
     return true;
 }
 
+export function getPlayerFromNickname(roomID, nickname){
+    let room = rooms.get(roomID);
+    for(let [userEmail, player] of room.players){
+        if(player.nickname == nickname){
+            return player;
+        }
+    }
+}
