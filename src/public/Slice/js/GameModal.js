@@ -106,7 +106,7 @@ export default class GameModal extends HTMLElement {
         this.setCategories();
         this.showLetter();
         this.shadowRoot.getElementById("stopBtn").disabled = false;
-        this.actualLetter++;
+        this.shadowRoot.getElementById("title-game").innerHTML = `Fill all the Inputs and press STOP! - Round ${this.actualLetter}`;
     }
 
     setCategories() {
@@ -185,7 +185,6 @@ export default class GameModal extends HTMLElement {
         this.socket.emit("game:sendVotation", { user: this.user, finalWords: finalWordsArray, room: this.room, round: this.actualLetter });
     }
 
-    nextRound() {}
 
     nextVotation(data) {
         console.log("nextVotation");
