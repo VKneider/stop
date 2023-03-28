@@ -26,7 +26,7 @@ import { genRoomID, getRoomById, getRooms, createRoom, deleteRoom, isRoomFull, a
 
 
 import homeEvents from "./socketManager/events/homeEvents.js";
-
+import gameEvents from "./socketManager/events/gameEvents.js";
 
 const app = express();
 const bodyParser = express.json();
@@ -47,6 +47,7 @@ const server = app.listen(app.get("port"), "", (req, res) => {
 
 const io = new socketIO(server);
 homeEvents(io);
+gameEvents(io);
 
 
 app.get("/", (req, res) => {
@@ -93,14 +94,16 @@ io.on("connection", socket => {
             let rooms = Array.from(socket.rooms);
             let myRoom = rooms[1];
             let myRoomData = getRoomById(myRoom);
+  
     
             let playerData = getPlayerDataFromSocketID(socket.id);
-            if (myRoomData.status != "playing") {
+            if (myRoomData.status!="playing") {
                 if (playerData.player.role == "host") {
                     deleteRoom(myRoom);
                     socket.broadcast.to(myRoom).emit("update:closedRoom");
                 } else {
                     if (io.sockets.adapter.rooms.get(myRoom).size != undefined) {
+                        removePlayerFromRoom(myRoom, playerData.userEmail)
                         let players = myRoomData.players.size;
                         socket.broadcast.to(myRoom).emit("update:waitingPlayers", { players: players, max: myRoomData.max });
                     }
@@ -110,19 +113,7 @@ io.on("connection", socket => {
     });
 
 
-   
 
-    socket.on("room:connected", room => {
-        let myRoom = socketManager.getRoomData(room);
-        socketManager.getRoomData(room).connected++;
-
-        if (myRoom.connected == myRoom.players.size && myRoom.started != true) {
-            socketManager.getRoomData(room).started = true;
-            io.in(room).emit("timer:on");
-        }
-    });
-
-    
     socket.on("game:endGame", room => {
         io.in(room).emit("game:stopInput");
     });

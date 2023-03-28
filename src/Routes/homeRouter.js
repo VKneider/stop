@@ -24,14 +24,13 @@ homeRouter.post("/createRoom", (req, res) => {
     let newRoom = genRoomID();
     let rounds = 5
     createRoom(newRoom, req.body.max, rounds)
-    addPlayerToRoom(newRoom, req.session.user, {nickname: req.session.nickname, role: "host", score:0, connected:false})
-    console.log(getRoomById(newRoom), "room created")
+    addPlayerToRoom(newRoom, req.session.user, {nickname: req.session.nickname, role: "host", score:0, connected:false, sent:false, votation: false})
     res.status(200).send({ room: newRoom, status: 200, user: req.session.user});
 });
 
 homeRouter.post("/joinRoom", (req, res) => {
     if (req.session.room) {
-        res.status(200).send({ message: "You are already in a room", status: 403, room: req.session.room });
+        res.status(200).send({ message: "You are already in a room", status: 403, room: req.session.room});
         return;
     }
 
@@ -46,8 +45,7 @@ homeRouter.post("/joinRoom", (req, res) => {
     }
 
     let roomMax = getRoomById(req.body.room).max;
-    addPlayerToRoom(req.body.room, req.session.user, {nickname: req.session.nickname, role: "player", score:0, connected:false})
-    console.log(getRoomById(req.body.room), "player joined")
+    addPlayerToRoom(req.body.room, req.session.user, {nickname: req.session.nickname, role: "player", score:0, connected:false, sent:false, votation: false})
 
     res.status(200).send({ room: req.body.room, user: req.session.user, status: 200, max: roomMax });
 

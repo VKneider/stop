@@ -12,6 +12,7 @@ gameRouter.use(sess.sessionMiddleware);
 
 
 gameRouter.get("/", (req, res) => {
+
     if (getRoomById(req.query.room).players.has(req.session.user)) {
         req.session.room = req.query.room;
         res.sendFile(path.join(__dirname,"..", "public", "gamePage", "index.html"))    } else {

@@ -34,7 +34,6 @@ function generateRoundWords(words, round) {
 
 //Function that gets a property called "category" from an array of objects, the function returns an array with all the categories, without repetitions
 function getCategories(array) {
-    console.log(array, "categoriesArray")
     let categories = [];
     for (let i = 0; i < array.length; i++) {
         if (!categories.includes(array[i].category)) {

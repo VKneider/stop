@@ -22,8 +22,12 @@ export function createRoom(roomID, max, rounds){
         started: false,
         status: "waiting",
         letters: getRandomValues(deepCopyArray(letters), 9),
+        temporalWords: []
     }
 
+    for (let i = 0; i < rounds; i++) {
+        room.words.set(i, []);
+    }
 
 
     rooms.set(roomID, room);
@@ -99,3 +103,24 @@ export function allPlayersConnected(roomID){
     }
     return true;
 }
+
+export function allPlayersVoted(roomID){
+    let room = rooms.get(roomID);
+    for(let [userEmail, player] of room.players){
+        if(!player.votation){
+            return false;
+        }
+    }
+    return true;
+}
+
+export function allPlayersSent(roomID){
+    let room = rooms.get(roomID);
+    for(let [userEmail, player] of room.players){
+        if(!player.sent){
+            return false;
+        }
+    }
+    return true;
+}
+

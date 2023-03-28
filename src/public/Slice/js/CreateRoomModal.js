@@ -92,7 +92,7 @@ export default class CreateRoomModal extends HTMLElement {
       });
       } else if(call.status==403){
 
-        window.location.href=`http://localhost:3003/game?room=${call.room}`
+        window.location.href=`http://localhost:3003/game/?room=${call.room}`
       }
 
     }
