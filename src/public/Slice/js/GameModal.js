@@ -122,8 +122,8 @@ export default class GameModal extends HTMLElement {
 
     startNewRound() {
         this.setCategories();
-        this.showLetter();
         this.actualRound++;
+        this.showLetter();
         this.shadowRoot.getElementById("stopBtn").disabled = false;
         this.shadowRoot.getElementById("title-game").innerHTML = `Fill all the Inputs and press STOP! - Round ${this.actualRound + 1}`;
     }
