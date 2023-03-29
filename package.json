@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "start": "nodemon -r dotenv/config src/server.js dotenv_config_path=local.env",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon -r dotenv/config src/server.js dotenv_config_path=local.env"
   },
