@@ -82,6 +82,9 @@ io.on("connection", socket => {
                         socket.broadcast.to(myRoom).emit("update:waitingPlayers", { players: players, max: myRoomData.max });
                     }
                 }
+            }else{
+                playerData.player.disconnected = true;
+                console.log(playerData.player.nickname, "disconnected");
             }
         }
     });

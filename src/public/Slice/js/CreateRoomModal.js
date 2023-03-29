@@ -96,6 +96,7 @@ export default class CreateRoomModal extends HTMLElement {
         
         this.shadowRoot.getElementById("closeBtn").addEventListener("click", () => {
           this.active=false;
+          this.ready=false;
           slice.controller.components.delete("myBtn2")
           this.socket.emit('waiting:deleteRoom', this.room)
           slice.controller.components.delete("playersInput")

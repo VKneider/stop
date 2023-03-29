@@ -1,4 +1,4 @@
-import { genRoomID, getRoomById, getRooms, createRoom, deleteRoom, getGameWinner, isRoomFull,getPlayerFromNickname, addPlayerToRoom, allPlayersVoted, allPlayersSent, removePlayerFromRoom, verifyRoomExists, assignSocketIDToPlayer, changeRoomStatus, allPlayersConnected } from "../rooms/newRoomSchema.js";
+import { genRoomID, getRoomById, getRooms, anyPlayerDisconnected, createRoom, deleteRoom, getGameWinner, isRoomFull,getPlayerFromNickname, addPlayerToRoom, allPlayersVoted, allPlayersSent, removePlayerFromRoom, verifyRoomExists, assignSocketIDToPlayer, changeRoomStatus, allPlayersConnected } from "../rooms/newRoomSchema.js";
 import { getCategories, generateRepeatedWords, generateTotalRoundPointsMap } from "../rooms/utils.js";
 
 export default function gameEvents(io) {
@@ -7,8 +7,9 @@ export default function gameEvents(io) {
             let myRoom = getRoomById(data.room);
 
             if (allPlayersConnected(data.room)) {
-                //se devuelve la misma informacion de la sala
+                socket.emit("game:reJoinGame", {block:true});
             } else {
+                myRoom.players.get(data.user).disconnected = false;
                 myRoom.players.get(data.user).connected = true;
                 if (allPlayersConnected(data.room)) {
                     io.in(data.room).emit("game:startGame");
@@ -16,6 +17,10 @@ export default function gameEvents(io) {
             }
         });
 
+        socket.on("game:unblockDisconnectedPlayer", data => {
+            let myRoom = getRoomById(data.room);
+            myRoom.players.get(data.user).disconnected = false;
+        });
 
         socket.on("game:sendVotation", data => {
             console.log("sendVotation", data)
@@ -24,7 +29,9 @@ export default function gameEvents(io) {
             myRoom.temporalWords = [...myRoom.temporalWords, ...data.finalWords];
             let playersAmmount = myRoom.players.size;
 
-            if (allPlayersVoted(data.room)) {
+            let disconnectedFlag = anyPlayerDisconnected(data.room);
+
+            if (allPlayersVoted(data.room) || disconnectedFlag ) {
 
                 let mainWords = myRoom.words.get(myRoom.actualRound);
                 for (let i = 0; i < myRoom.temporalWords.length; i++) {
@@ -137,7 +144,9 @@ export default function gameEvents(io) {
             myRoom.words.set(myRoom.actualRound, [...myRoom.words.get(myRoom.actualRound), ...data.words]);
             myRoom.players.get(data.user).sent = true;
             
-            if (allPlayersSent(data.room)) {
+            let disconnectedFlag = anyPlayerDisconnected(data.room);
+
+            if (allPlayersSent(data.room) || disconnectedFlag) {
                 io.in(data.room).emit("game:startVotations", { words: myRoom.words.get(myRoom.actualRound) });
                 let counter = 0;
                 let roundCategories = getCategories(myRoom.words.get(myRoom.actualRound));

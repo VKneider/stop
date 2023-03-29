@@ -8,6 +8,7 @@ export default class GameModal extends HTMLElement {
             this.attachShadow({ mode: "open" });
             this.shadowRoot.appendChild(template.content.cloneNode(true));
             this.roundWords;
+            this.block = false;
 
             if (this.props != undefined) {
                 if (this.props.id != undefined) {
@@ -24,13 +25,10 @@ export default class GameModal extends HTMLElement {
                     });
 
                     this.socket.on("game:stopRound", data => {
-                        //this.alertStop.show();
-                        let categories = this.shadowRoot.querySelectorAll(".cate");
-                        categories.forEach(category => {
-                            category.disabled = true;
-                        });
-                        this.shadowRoot.getElementById("stopBtn").disabled = true;
-                        this.sendValues();
+                        if(!this.block){
+                            this.blockInputs();
+                            this.sendValues();
+                        }
                     });
 
                     this.socket.on("game:updatePoints", map => {
@@ -41,11 +39,13 @@ export default class GameModal extends HTMLElement {
 
                     this.socket.on("game:endGame", data => {
                         this.endGame(data);
-                    })
+                    });
 
                     this.socket.on("game:startVotations", data => {
-                        this.roundWords = data.words;
-                        this.startVotations();
+                        if (!this.block) {
+                            this.roundWords = data.words;
+                            this.startVotations();
+                        }
                     });
 
                     this.socket.on("game:nextVotation", data => {
@@ -53,11 +53,21 @@ export default class GameModal extends HTMLElement {
                     });
 
                     this.socket.on("game:endRoundVotation", data => {
-                        this.endRoundVotation();
+                        if (!this.block) {
+                            this.endRoundVotation();
+                        }
                     });
 
                     this.socket.on("game:startNewRound", data => {
+                        this.socket.emit("game:unblockDisconnectedPlayer", { room: this.room, user: this.user })
+                        this.unblockModal();
+                        this.block=false;
                         this.startNewRound();
+                    });
+
+                    this.socket.on("game:reJoinGame", data => {
+                        this.block=true;
+                        this.blockModal();
                     });
                 }
 
@@ -65,11 +75,11 @@ export default class GameModal extends HTMLElement {
                     this.nickname = this.props.nickname;
                 }
 
-                if(this.alertFailStop != undefined){
+                if (this.alertFailStop != undefined) {
                     this.alertFailStop = this.props.alertFailStop;
                 }
 
-                if(this.alertStop!= undefined){
+                if (this.alertStop != undefined) {
                     this.alertStop = this.props.alertStop;
                 }
 
@@ -94,23 +104,28 @@ export default class GameModal extends HTMLElement {
                     this.letters = this.props.letters;
                 }
 
+                if (this.props.actualRound != undefined) {
+                    this.actualRound = this.props.actualRound;
+                }
+
                 this.players;
                 this.categories = ["Nombre", "Apellido", "Cosa", "Color", "Animal", "Comida", "Lugar", "Profesión", "Deporte"];
-                this.actualLetter = 0;
             }
             this.shadowRoot.getElementById("stopBtn").addEventListener("click", async () => {
                 this.socket.emit("game:userStop", { room: this.room, user: this.user });
             });
             slice.controller.toRegister(this);
             this.socket.emit("game:userConnected", { room: this.room, user: this.user });
+            console.log(this);
         });
     }
 
     startNewRound() {
         this.setCategories();
         this.showLetter();
+        this.actualRound++;
         this.shadowRoot.getElementById("stopBtn").disabled = false;
-        this.shadowRoot.getElementById("title-game").innerHTML = `Fill all the Inputs and press STOP! - Round ${this.actualLetter}`;
+        this.shadowRoot.getElementById("title-game").innerHTML = `Fill all the Inputs and press STOP! - Round ${this.actualRound + 1}`;
     }
 
     setCategories() {
@@ -142,8 +157,7 @@ export default class GameModal extends HTMLElement {
 
     showLetter() {
         let letterContainer = this.shadowRoot.getElementById("letter");
-        letterContainer.innerHTML = this.letters[this.actualLetter];
-        this.actualLetter++;
+        letterContainer.innerHTML = this.letters[this.actualRound];
     }
 
     sendValues() {
@@ -151,22 +165,24 @@ export default class GameModal extends HTMLElement {
         this.categories.forEach(category => {
             let input = this.shadowRoot.getElementById(`input-${category}`);
             if (input.value != "") {
-                values.push({ category: category, value: input.value, votes: 0, user: this.user, room: this.room, nickname: this.nickname, round: this.actualLetter, points: 0 });
+                values.push({ category: category, value: input.value, votes: 0, user: this.user, room: this.room, nickname: this.nickname, round: this.actualRound, points: 0 });
             }
         });
-        this.socket.emit("game:sendWords", { room: this.room, words: values, user: this.user, round: this.actualLetter, votes: 0 });
+        this.socket.emit("game:sendWords", { room: this.room, words: values, user: this.user, round: this.actualRound, votes: 0 });
     }
 
-     stop() {
-        let flag= true;
+    stop() {
+        let flag = true;
         let categories = this.shadowRoot.querySelectorAll(".cate");
         categories.forEach(category => {
-            if(category.value==""){flag=false}
+            if (category.value == "") {
+                flag = false;
+            }
         });
 
-        if(flag){
+        if (flag) {
             this.socket.emit("game:userStop", { room: this.room });
-        } else{
+        } else {
             //this.alertFailStop.show()
         }
     }
@@ -178,7 +194,6 @@ export default class GameModal extends HTMLElement {
         let roundCategories = this.getRoundCategories(this.roundWords);
         let finalWordsArray = [];
 
-
         for (let j = 0; j < roundCategories.length; j++) {
             for (let k = 0; k < this.groupedRoundWords[roundCategories[j]].length; k++) {
                 let word = this.groupedRoundWords[roundCategories[j]][k];
@@ -186,9 +201,8 @@ export default class GameModal extends HTMLElement {
             }
         }
 
-        this.socket.emit("game:sendVotation", { user: this.user, finalWords: finalWordsArray, room: this.room, round: this.actualLetter });
+        this.socket.emit("game:sendVotation", { user: this.user, finalWords: finalWordsArray, room: this.room, round: this.actualRound });
     }
-
 
     nextVotation(data) {
         console.log("nextVotation");
@@ -196,7 +210,7 @@ export default class GameModal extends HTMLElement {
         title.innerHTML = `Category: ${data.category}`;
         let categoryContainer = this.shadowRoot.getElementById("categoryContainer");
 
-        console.log(this.groupedRoundWords)
+        console.log(this.groupedRoundWords);
         categoryContainer.innerHTML = "";
         for (let i = 0; i < this.groupedRoundWords[data.category].length; i++) {
             let word = this.groupedRoundWords[data.category][i];
@@ -219,7 +233,7 @@ export default class GameModal extends HTMLElement {
                 }
                 delete word.votes;
                 word.voted = true;
-                let voteBox = await slice.getInstance("VoteBox", { value: word.value, voted: word.voted, nickname: word.nickname, room: word.room, round: word.round, category: word.category, user: word.user });
+                let voteBox = await slice.getInstance("VoteBox", {value: word.value, voted: word.voted, nickname: word.nickname, room: word.room, round: word.round, category: word.category, user: word.user });
                 groupedWords[word.category].push(voteBox);
             });
             return groupedWords;
@@ -239,23 +253,41 @@ export default class GameModal extends HTMLElement {
         return categories;
     }
 
-    async endGame(data){
+    async endGame(data) {
         let title = this.shadowRoot.getElementById("title-game");
-        if(data.winner.length>1){
+        if (data.winner.length > 1) {
             title.innerHTML = `Game ended, there is a tie between`;
             data.winner.forEach(winner => {
                 title.innerHTML += ` ${winner}, `;
             });
-        }else{
+        } else {
             title.innerHTML = `Game ended, the winner is ${data.winner[0]}`;
         }
 
-        let call = await mainFetch.request("POST", {room:this.room}, "/game/deleteRoomSession")
-        if(call.status==200){
+        let call = await mainFetch.request("POST", { room: this.room }, "/game/deleteRoomSession");
+        if (call.status == 200) {
             setTimeout(() => {
                 window.location.href = "http://localhost:3003/home";
-            }, 3000);
+            }, 5000);
         }
+    }
+
+    blockInputs() {
+        let categories = this.shadowRoot.querySelectorAll(".cate");
+        categories.forEach(category => {
+            category.disabled = true;
+        });
+        this.shadowRoot.getElementById("stopBtn").disabled = true;
+    }
+
+    blockModal() {
+        this.shadowRoot.getElementById("modal").style.pointerEvents = "none";
+        this.shadowRoot.getElementById("modal").style.opacity = "0.5";
+    }
+
+    unblockModal() {
+        this.shadowRoot.getElementById("modal").style.pointerEvents = "auto";
+        this.shadowRoot.getElementById("modal").style.opacity = "1";
     }
 }
 

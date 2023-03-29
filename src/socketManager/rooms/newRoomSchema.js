@@ -157,3 +157,14 @@ export function getGameWinner(roomID){
     return usersNicknames;
 }
 
+
+export function anyPlayerDisconnected(roomID){
+    let room = rooms.get(roomID);
+    for(let [userEmail, player] of room.players){
+        console.log(player.nickname, player.disconnected)
+        if(player.disconnected){
+            return true
+        }
+    }
+    return false
+}
