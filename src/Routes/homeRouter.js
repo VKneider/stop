@@ -12,7 +12,7 @@ homeRouter.use(sess.sessionMiddleware);
 
 
 homeRouter.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname,"..", "public", "homePage", "index.html"))
+    res.sendFile(path.join(__dirname, "public", "homePage", "index.html"))
 } );
 
 homeRouter.post("/createRoom", (req, res) => {
